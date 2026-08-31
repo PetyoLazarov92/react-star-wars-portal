@@ -10,8 +10,9 @@ This README describes the project's real, current state. See
 
 ## Current status
 
-Project foundation only: tooling, conventions, and the development plan are in place. The login
-page and data table are not implemented yet. See `docs/development-plan.md` for what's next.
+Project foundation and routing skeleton only: tooling, conventions, the development plan, and
+placeholder pages at `/`, `/table`, and a catch-all 404 are in place. The login form and data
+table are not implemented yet. See `docs/development-plan.md` for what's next.
 
 ## Tech stack
 
@@ -55,14 +56,21 @@ A test script will be added once a testing stack is introduced (see the developm
 
 ```text
 src/
-  App.tsx        # root component
-  main.tsx       # entry point
+  app/
+    routes.ts      # named route path constants
+    router.tsx     # <Routes>/<Route> definitions
+  pages/
+    LoginPage.tsx      # placeholder, login form lands in a later step
+    TablePage.tsx       # placeholder, data table lands in a later step
+    NotFoundPage.tsx
+  App.tsx        # root component, renders the router
+  main.tsx       # entry point, wraps App in BrowserRouter
   index.css      # Tailwind entry
 ```
 
-This will grow feature by feature (routing, `features/auth`, `features/people`, `shared/`) per the
-plan in `docs/development-plan.md`, which documents the target folder structure and the reasoning
-behind it.
+This will grow feature by feature (`features/auth`, `features/people`, `shared/`) per the plan in
+`docs/development-plan.md`, which documents the target folder structure and the reasoning behind
+it.
 
 ## AI-assisted development
 

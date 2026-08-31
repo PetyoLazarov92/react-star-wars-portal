@@ -9,7 +9,11 @@ active development: patch releases are fixes, minor releases are meaningful feat
 
 ## [Unreleased]
 
-No changes yet.
+### Added
+
+- Routing skeleton: `react-router-dom` wired up via `BrowserRouter` in `main.tsx`, named route
+  path constants in `src/app/routes.ts`, and `src/app/router.tsx` rendering placeholder
+  `LoginPage` (`/`), `TablePage` (`/table`), and a catch-all `NotFoundPage`.
 
 ## [0.1.0] - 2026-08-31
 

@@ -18,7 +18,7 @@ across every AI tool working in this repository.
 
 A responsive React + TypeScript application with two pages:
 
-- `/` (or `/login`): a login form (username + password) with client-side validation only.
+- `/`: a login form (username + password) with client-side validation only.
 - `/table`: a paginated table of Star Wars characters from the public SWAPI
   (`https://swapi.py4e.com/api/people`), showing name, mass, height, hair color, and skin color.
 

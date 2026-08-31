@@ -81,20 +81,29 @@ all pass on a clean `npm install`; `npm run dev` serves a placeholder page style
 
 ### Step 1: Routing skeleton
 
-**Status:** Planned
+**Status:** Done
 
-**What:** Install/wire `react-router-dom`; add `src/app/router.tsx` with named route path
-constants; add placeholder `LoginPage`, `TablePage`, and a catch-all `NotFoundPage`; wire it into
-`App.tsx`.
+**What:** Wired `react-router-dom` (already installed in Step 0); added `src/app/routes.ts` with
+named route path constants (`ROUTES.login`, `ROUTES.table`) and `src/app/router.tsx` rendering
+`<Routes>`/`<Route>` against them; added placeholder `LoginPage`, `TablePage`, and a catch-all
+`NotFoundPage` under `src/pages/`; `BrowserRouter` wraps `App` in `main.tsx`, and `App.tsx` renders
+`AppRouter`.
 
 **Why now:** Routing is structural: login and table both need a real page/URL to exist before
 either feature has somewhere to live. Doing it first also lets us decide the URL shape for
 pagination (`/table?page=n`) before the table exists, instead of retrofitting it.
 
-**Changes:** `src/app/router.tsx`, `src/pages/*`, `App.tsx` updated to render the router.
+**Changes:** `src/app/routes.ts`, `src/app/router.tsx`, `src/pages/LoginPage.tsx`,
+`src/pages/TablePage.tsx`, `src/pages/NotFoundPage.tsx`, `src/App.tsx`, `src/main.tsx`.
 
-**Validation:** Navigating to `/`, `/table`, and an unknown path in the browser shows the right
-placeholder/404; `npm run build`, `lint`, `typecheck` pass.
+**Decision:** The login page is served at `/` (not `/login`), so `ROUTES.login = '/'`, matching
+the "or `/login`" alternative already noted in `AGENTS.md` and keeping a single, simple entry
+route instead of an extra redirect from `/` to `/login`.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`
+all pass. Verified with the dev server that `/`, `/table`, and an unknown path each serve the app
+shell and resolve to the correct page component (login, table, and 404 with a link back to
+login, respectively).
 
 ---
 
