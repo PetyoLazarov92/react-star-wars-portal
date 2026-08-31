@@ -44,6 +44,12 @@ active development: patch releases are fixes, minor releases are meaningful feat
   built on the native `<dialog>` element), and `app/OfflineModal.tsx` (the offline-specific modal,
   wired app-wide in `App.tsx`), shown whenever the browser reports no connection and re-armed for
   the next disconnect after being dismissed once the connection returns.
+- Light and dark theme: a class-based `dark:` Tailwind variant (`src/index.css`), a Zod-validated,
+  `localStorage`-persisted `shared/hooks/useTheme.ts` (defaulting to the OS `prefers-color-scheme`
+  when there is no stored preference), and a fixed, app-wide toggle button rendered from
+  `App.tsx` (`shared/components/ThemeToggle.tsx`). `dark:` classes were added across every
+  existing page and component (`LoginPage`, `TablePage`, `NotFoundPage`, `LoginForm`,
+  `PeopleTable`, `Pagination`, `Modal`, `OfflineModal`) with no structural changes.
 
 ### Changed
 

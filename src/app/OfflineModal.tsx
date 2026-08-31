@@ -10,7 +10,7 @@ function OfflineIllustration() {
       fill="none"
       stroke="currentColor"
       strokeWidth={1.5}
-      className="mx-auto h-16 w-16 text-slate-400"
+      className="mx-auto h-16 w-16 text-slate-400 dark:text-slate-500"
     >
       <path
         strokeLinecap="round"
@@ -40,7 +40,7 @@ function OfflineModal() {
     <Modal open={!isOnline && !dismissed} title="You're offline" onClose={() => setDismissed(true)}>
       <div className="mt-4 flex flex-col items-center gap-3 text-center">
         <OfflineIllustration />
-        <p className="text-slate-600">
+        <p className="text-slate-600 dark:text-slate-400">
           It looks like you have lost your internet connection. Some content may not load until you
           are back online.
         </p>

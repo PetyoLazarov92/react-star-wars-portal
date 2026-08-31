@@ -1,5 +1,5 @@
 const buttonClassName =
-  'min-h-11 rounded border border-slate-300 px-4 py-2.5 font-medium text-slate-900 disabled:cursor-not-allowed disabled:opacity-50'
+  'min-h-11 rounded border border-slate-300 px-4 py-2.5 font-medium text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-100'
 
 interface PaginationProps {
   page: number
@@ -20,7 +20,7 @@ function Pagination({ page, hasNext, hasPrevious, onPrevious, onNext }: Paginati
       >
         Previous
       </button>
-      <span aria-current="page" className="text-slate-700">
+      <span aria-current="page" className="text-slate-700 dark:text-slate-300">
         Page {page}
       </span>
       <button type="button" onClick={onNext} disabled={!hasNext} className={buttonClassName}>

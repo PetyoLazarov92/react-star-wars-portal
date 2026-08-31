@@ -5,7 +5,7 @@ import { ROUTES } from '../../app/routes'
 import { loginSchema, type LoginFormValues } from './loginSchema'
 
 const inputClassName =
-  'min-h-11 rounded border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400'
+  'min-h-11 rounded border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-slate-400 dark:focus:ring-slate-500'
 
 function LoginForm() {
   const navigate = useNavigate()
@@ -30,7 +30,10 @@ function LoginForm() {
       className="flex w-full max-w-sm flex-col gap-4"
     >
       <div className="flex flex-col gap-1 text-left">
-        <label htmlFor="username" className="text-sm font-medium text-slate-700">
+        <label
+          htmlFor="username"
+          className="text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
           Username
         </label>
         <input
@@ -43,14 +46,17 @@ function LoginForm() {
           {...register('username')}
         />
         {errors.username ? (
-          <p id="username-error" role="alert" className="text-sm text-red-600">
+          <p id="username-error" role="alert" className="text-sm text-red-600 dark:text-red-400">
             {errors.username.message}
           </p>
         ) : null}
       </div>
 
       <div className="flex flex-col gap-1 text-left">
-        <label htmlFor="password" className="text-sm font-medium text-slate-700">
+        <label
+          htmlFor="password"
+          className="text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
           Password
         </label>
         <input
@@ -63,7 +69,7 @@ function LoginForm() {
           {...register('password')}
         />
         {errors.password ? (
-          <p id="password-error" role="alert" className="text-sm text-red-600">
+          <p id="password-error" role="alert" className="text-sm text-red-600 dark:text-red-400">
             {errors.password.message}
           </p>
         ) : null}
@@ -72,7 +78,7 @@ function LoginForm() {
       <button
         type="submit"
         disabled={!isValid}
-        className="min-h-11 rounded bg-slate-900 px-4 py-2.5 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+        className="min-h-11 rounded bg-slate-900 px-4 py-2.5 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900"
       >
         Log in
       </button>

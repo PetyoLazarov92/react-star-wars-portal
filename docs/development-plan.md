@@ -540,22 +540,53 @@ regress existing behavior; no console errors throughout.
 
 ### Step 11: Light & dark theme
 
-**Status:** Planned
+**Status:** Done
 
-**What:** Add Tailwind's `dark:` variant support (class-based, toggled by a small
-`useTheme`/localStorage-persisted preference, defaulting to the user's OS preference) and apply it
-across the existing components.
+**What:** `src/index.css` now defines `@custom-variant dark (&:where(.dark, .dark *));` (Tailwind
+v4's documented recipe for a class-based `dark:` variant, since its default is to always follow
+`prefers-color-scheme` with no override) plus a `color-scheme: light` / `.dark { color-scheme:
+dark }` pair so native form control and scrollbar theming matches. `shared/hooks/useTheme.ts`
+reads a `'light' | 'dark'` preference once on mount, a Zod-validated (`z.enum`) read of the
+`theme` key in `localStorage` if present and valid, otherwise `window.matchMedia('(prefers-
+color-scheme: dark)').matches`, and returns the current theme plus a `toggleTheme` function; an
+effect applies the choice by toggling the `dark` class on `document.documentElement` and writing
+it back to `localStorage` (a failed write is swallowed, same best-effort convention as the
+existing cache helper). `shared/components/ThemeToggle.tsx` is the only place that calls the hook,
+a fixed-position, top-right, 44x44px button (sun/moon inline SVG icon, an `aria-label` describing
+the action it performs) rendered app-wide from `App.tsx` alongside `OfflineModal`, following the
+same "device-level preference, not page-specific" precedent Step 8 set. Every other component
+reacts to the `dark` class purely through Tailwind `dark:` utility classes added alongside their
+existing colors, no React state involved: `LoginPage`, `TablePage`, `NotFoundPage`, `LoginForm`,
+`PeopleTable`, `Pagination`, `Modal`, and `OfflineModal`.
 
 **Why now:** Deliberately last-but-two: the architecture (Tailwind utility classes, a small set of
 reusable primitives, no inline colors) was kept theme-friendly from Step 0 onward specifically so
 this step is additive, going through already-finished components once, rather than threading
-theme concerns through every step above.
+theme concerns through every step above. That held up in practice: no component needed a
+structural change, only an added `dark:` class alongside its existing one.
 
-**Changes:** `src/index.css` (dark variant setup), theme toggle + persistence, `dark:` classes
-across components.
+**Changes:** `src/index.css` (`@custom-variant dark`, `color-scheme`), `shared/hooks/useTheme.ts`
+(new), `shared/components/ThemeToggle.tsx` (new), `App.tsx` (renders `ThemeToggle`), `dark:`
+classes added to `LoginPage.tsx`, `TablePage.tsx`, `NotFoundPage.tsx`, `LoginForm.tsx`,
+`PeopleTable.tsx`, `Pagination.tsx`, `Modal.tsx`, `OfflineModal.tsx`.
 
-**Validation:** Manual check of both themes on both pages, including the modal; OS-level
-preference is respected by default; the toggle persists across a reload.
+**Decision:** No context/provider and no theme state anywhere except inside `useTheme`. Only one
+component (`ThemeToggle`) ever needs to change the theme; every other component only needs to
+react to it, which Tailwind's `dark:` variant already does directly off the DOM class with no
+React re-render required. Introducing shared state for a single writer/many-passive-readers
+situation would be the kind of premature abstraction `AGENTS.md` warns against.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`
+all pass. Verified in headless Chrome (driven directly over the DevTools protocol): with no stored
+preference, emulating `prefers-color-scheme: light` and `dark` each render the matching theme (the
+`dark` class present only in the latter); clicking the toggle flips the class, updates its
+`aria-label`, and writes the new value to `localStorage`; reloading afterward keeps the
+last-toggled theme instead of reverting to the OS preference, on both `/` and `/table`; writing an
+invalid string to the `theme` `localStorage` key and reloading falls back to the OS preference
+instead of crashing, confirming the Zod validation on read. An `axe-core` scan reports zero
+violations on `/` and `/table` in both themes. Visually spot-checked via screenshots: the login
+page, the people table, and the offline modal (forced offline while dark) all render with correct
+contrast in dark mode, matching their light-mode layout with no structural shift.
 
 ---
 

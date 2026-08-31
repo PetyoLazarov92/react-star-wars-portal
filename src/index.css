@@ -1,1 +1,14 @@
 @import 'tailwindcss';
+
+/* Class-based dark mode: the `dark:` variant applies whenever `.dark` is on `<html>` or an
+   ancestor, toggled by shared/hooks/useTheme.ts, instead of Tailwind v4's default of always
+   following the OS `prefers-color-scheme` media query with no way to override it. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
