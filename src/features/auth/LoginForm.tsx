@@ -5,7 +5,7 @@ import { ROUTES } from '../../app/routes'
 import { loginSchema, type LoginFormValues } from './loginSchema'
 
 const inputClassName =
-  'rounded border border-slate-300 px-3 py-2 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400'
+  'min-h-11 rounded border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400'
 
 function LoginForm() {
   const navigate = useNavigate()
@@ -72,7 +72,7 @@ function LoginForm() {
       <button
         type="submit"
         disabled={!isValid}
-        className="rounded bg-slate-900 px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+        className="min-h-11 rounded bg-slate-900 px-4 py-2.5 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
       >
         Log in
       </button>

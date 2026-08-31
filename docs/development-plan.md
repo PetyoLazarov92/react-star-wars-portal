@@ -436,18 +436,53 @@ computed margins resolve to exact centering in the viewport, and the backdrop st
 
 ### Step 9: Responsive styling pass
 
-**Status:** Planned
+**Status:** Done
 
-**What:** Review both pages at mobile/tablet/desktop widths; fix any overflow, cramped touch
-targets, or awkward table wrapping (e.g. horizontal scroll container for the table on narrow
-screens rather than squeezing columns unreadably).
+**What:** Audited `/`, `/table`, and the offline modal at 360px, 768px, and 1280px widths in a real
+browser before making any change, to fix actual problems rather than guess at them. Most of the
+app was already fine: the table's horizontal-scroll container (built in Step 4) already keeps a
+wide table from ever overflowing the page body, and neither page showed page-level horizontal
+overflow at any width. Two real issues turned up and were fixed:
+
+- The offline modal (`shared/components/Modal.tsx`) touched both viewport edges with zero side
+  margin at 360px: its `max-w-sm` class is only an upper bound, and the browser's shrink-to-fit
+  width algorithm for the unconstrained `<dialog>` filled the entire viewport once the content's
+  preferred width (driven by the paragraph text) exceeded 360px, leaving `margin: auto` nothing to
+  distribute. Replaced `max-w-sm` with `w-[min(24rem,calc(100%-2rem))]`, which guarantees at least
+  1rem (16px) of margin on each side while still capping the modal at 24rem (384px, the same value
+  `max-w-sm` used) on wider screens.
+- The modal's close ("&times;") button had an approximately 11.5 by 20 pixel hit area, well under
+  the roughly 44 by 44 pixel touch-target guideline, since it was just the glyph's own inline box
+  with no padding. Fixed with `flex min-h-11 min-w-11 shrink-0 items-center justify-center`
+  (Tailwind's `11` spacing step is `2.75rem`, i.e. 44px), and the header row's alignment changed
+  from `items-start` to `items-center` so it still looks balanced next to the now-taller button.
+
+The plan's other named concern, "cramped touch targets," was addressed for the remaining
+interactive controls too, even though the page-level overflow they were originally grouped with
+was already fine: the Pagination Previous/Next buttons and the login form's inputs and submit
+button were about 40 to 42px tall (`py-2`); bumped to `py-2.5` plus an explicit `min-h-11` so they
+comfortably clear the 44px guideline instead of sitting just under it.
 
 **Why now:** Easiest to do once all the real content and states exist; polishing layout before
 that would mean redoing it.
 
-**Changes:** Tailwind class adjustments across existing components; no new files expected.
+**Changes:** `shared/components/Modal.tsx` (width and close-button sizing), `Pagination.tsx` and
+`LoginForm.tsx` (button/input touch-target sizing). No new files.
 
-**Validation:** Manual check across a few breakpoints (e.g. 360px, 768px, 1280px) in the browser.
+**Decision:** No changes were made purely to hit a number when nothing was actually broken. The
+Pagination and login control heights were a soft, minor shortfall (2 to 4px) rather than something
+a real user would call "cramped," but the plan's own wording for this step explicitly calls out
+"cramped touch targets" as in scope, so the small, low-risk padding adjustment was made rather than
+left as a borderline case.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`
+all pass. Audited and re-verified in headless Chrome (driven directly over the DevTools protocol) at
+360px, 768px, and 1280px widths: no page-level horizontal overflow on `/` or `/table` at any width
+(`document.documentElement.scrollWidth` equals the viewport width in every case); the offline modal
+keeps roughly 19px of margin on each side at 360px and is exactly centered at 768px and 1280px
+(`(768-384)/2 = 192`, `(1280-384)/2 = 448`); the close button measures 44 by 44px at all three
+widths; the Pagination buttons measure 46px tall and the login inputs/submit button measure 44 to
+46px tall, all at every width tested; no console errors anywhere.
 
 ---
 

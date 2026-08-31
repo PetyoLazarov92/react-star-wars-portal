@@ -32,9 +32,9 @@ function Modal({ open, title, onClose, children }: ModalProps) {
       ref={dialogRef}
       aria-labelledby={titleId}
       onClose={onClose}
-      className="m-auto max-w-sm rounded-lg border border-slate-300 bg-white p-6 text-slate-900 backdrop:bg-slate-900/50"
+      className="m-auto w-[min(24rem,calc(100%-2rem))] rounded-lg border border-slate-300 bg-white p-6 text-slate-900 backdrop:bg-slate-900/50"
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <h2 id={titleId} className="text-lg font-semibold">
           {title}
         </h2>
@@ -42,7 +42,7 @@ function Modal({ open, title, onClose, children }: ModalProps) {
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="text-xl leading-none text-slate-500 hover:text-slate-900"
+          className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded text-xl leading-none text-slate-500 hover:text-slate-900"
         >
           &times;
         </button>

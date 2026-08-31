@@ -45,6 +45,13 @@ active development: patch releases are fixes, minor releases are meaningful feat
   wired app-wide in `App.tsx`), shown whenever the browser reports no connection and re-armed for
   the next disconnect after being dismissed once the connection returns.
 
+### Changed
+
+- Responsive styling pass: the offline modal now keeps a guaranteed minimum side margin on narrow
+  viewports instead of touching both edges, its close button grew to a proper ~44x44px touch
+  target, and the pagination Previous/Next buttons and the login form's inputs/submit button grew
+  from ~40-42px tall to ~44-46px tall to comfortably clear the same touch-target guideline.
+
 ### Fixed
 
 - Offline modal appearing pinned to the top-right corner instead of centered: Tailwind's preflight

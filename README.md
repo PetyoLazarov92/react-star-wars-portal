@@ -11,17 +11,19 @@ This README describes the project's real, current state. See
 ## Current status
 
 Project foundation, routing, the login form, the data table, pagination, localStorage caching,
-loading/error state polish, and offline detection are in place: `/` has a working, client-side
-validated login form that navigates to `/table` on success, and `/table` shows real, paginated
-SWAPI character data (name, mass, height, hair color, skin color) with Previous/Next controls, a
-loading state, and a generic error message on failure. The current page lives in the `?page=` URL
-search param, so reloading, sharing a link, and browser back/forward all keep working. Each fetched
-page is cached in `localStorage` for five minutes, so revisiting it loads instantly without a
-network request; if a fresh fetch fails, the last cached data for that page (even past its
-five-minute TTL) is shown below the error message instead of a blank failure, with pagination still
-available. Losing the connection anywhere in the app shows an accessible, dismissible offline
-modal that reappears the next time the connection drops. See `docs/development-plan.md` for what's
-next.
+loading/error state polish, offline detection, and a responsive styling pass are in place: `/` has
+a working, client-side validated login form that navigates to `/table` on success, and `/table`
+shows real, paginated SWAPI character data (name, mass, height, hair color, skin color) with
+Previous/Next controls, a loading state, and a generic error message on failure. The current page
+lives in the `?page=` URL search param, so reloading, sharing a link, and browser back/forward all
+keep working. Each fetched page is cached in `localStorage` for five minutes, so revisiting it
+loads instantly without a network request; if a fresh fetch fails, the last cached data for that
+page (even past its five-minute TTL) is shown below the error message instead of a blank failure,
+with pagination still available. Losing the connection anywhere in the app shows an accessible,
+dismissible offline modal that reappears the next time the connection drops. Both pages, and the
+offline modal, hold up at mobile, tablet, and desktop widths without page-level horizontal overflow,
+with interactive controls sized for comfortable touch targets. See `docs/development-plan.md` for
+what's next.
 
 ## Tech stack
 
