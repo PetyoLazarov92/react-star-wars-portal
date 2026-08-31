@@ -9,7 +9,7 @@ function cacheEntrySchema<T>(dataSchema: z.ZodType<T>) {
   return z.object({ data: dataSchema, fetchedAt: z.number() })
 }
 
-export function getCached<T>(key: string, dataSchema: z.ZodType<T>, ttlMs: number): T | null {
+function readEntry<T>(key: string, dataSchema: z.ZodType<T>): CacheEntry<T> | null {
   const raw = localStorage.getItem(key)
   if (raw === null) {
     return null
@@ -23,15 +23,26 @@ export function getCached<T>(key: string, dataSchema: z.ZodType<T>, ttlMs: numbe
   }
 
   const result = cacheEntrySchema(dataSchema).safeParse(parsedJson)
-  if (!result.success) {
+  return result.success ? result.data : null
+}
+
+export function getCached<T>(key: string, dataSchema: z.ZodType<T>, ttlMs: number): T | null {
+  const entry = readEntry(key, dataSchema)
+  if (!entry) {
     return null
   }
 
-  if (Date.now() - result.data.fetchedAt > ttlMs) {
+  if (Date.now() - entry.fetchedAt > ttlMs) {
     return null
   }
 
-  return result.data.data
+  return entry.data
+}
+
+// Ignores the TTL: for showing an already-expired entry as a fallback when a fresh fetch fails,
+// rather than as a normal cache hit.
+export function getStale<T>(key: string, dataSchema: z.ZodType<T>): T | null {
+  return readEntry(key, dataSchema)?.data ?? null
 }
 
 export function setCached<T>(key: string, data: T): void {

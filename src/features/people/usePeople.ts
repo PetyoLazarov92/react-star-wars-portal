@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchJson } from '../../shared/api/httpClient'
-import { getCached, setCached } from '../../shared/cache/localStorageCache'
+import { getCached, getStale, setCached } from '../../shared/cache/localStorageCache'
 import { peopleResponseSchema } from './people.schema'
 import type { Person, PeopleResponse } from './people.types'
 
@@ -10,18 +10,23 @@ const PEOPLE_ENDPOINT = 'https://swapi.py4e.com/api/people'
 // data that's gone very stale.
 const CACHE_TTL_MS = 5 * 60 * 1000
 
+interface PeopleData {
+  people: Person[]
+  hasNext: boolean
+  hasPrevious: boolean
+}
+
 export type PeopleState =
   | { status: 'loading' }
-  | { status: 'success'; people: Person[]; hasNext: boolean; hasPrevious: boolean }
-  | { status: 'error'; message: string }
+  | ({ status: 'success' } & PeopleData)
+  | { status: 'error'; message: string; stale?: PeopleData }
 
 function cacheKey(page: number): string {
   return `swapi:people:page:${page}`
 }
 
-function toPeopleState(response: PeopleResponse): PeopleState {
+function toPeopleData(response: PeopleResponse): PeopleData {
   return {
-    status: 'success',
     people: response.results,
     hasNext: response.next !== null,
     hasPrevious: response.previous !== null,
@@ -30,7 +35,14 @@ function toPeopleState(response: PeopleResponse): PeopleState {
 
 function readCache(page: number): PeopleState | null {
   const cached = getCached(cacheKey(page), peopleResponseSchema, CACHE_TTL_MS)
-  return cached ? toPeopleState(cached) : null
+  return cached ? { status: 'success', ...toPeopleData(cached) } : null
+}
+
+// A cache entry that's past its TTL is still worth showing when a fresh fetch fails: better to
+// display data that might be slightly out of date than to show nothing at all.
+function readStale(page: number): PeopleData | undefined {
+  const stale = getStale(cacheKey(page), peopleResponseSchema)
+  return stale ? toPeopleData(stale) : undefined
 }
 
 export function usePeople(page: number): PeopleState {
@@ -56,7 +68,7 @@ export function usePeople(page: number): PeopleState {
       .then((data) => {
         const parsed = peopleResponseSchema.parse(data)
         setCached(cacheKey(page), parsed)
-        setState(toPeopleState(parsed))
+        setState({ status: 'success', ...toPeopleData(parsed) })
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError') {
@@ -65,6 +77,7 @@ export function usePeople(page: number): PeopleState {
         setState({
           status: 'error',
           message: 'Unable to load Star Wars characters right now. Please try again later.',
+          stale: readStale(page),
         })
       })
 

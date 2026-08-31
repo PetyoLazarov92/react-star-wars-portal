@@ -35,6 +35,10 @@ active development: patch releases are fixes, minor releases are meaningful feat
   reads with a TTL, any invalid or expired entry treated as a cache miss rather than an error);
   `usePeople` now caches each fetched page for five minutes and serves a cache hit instantly
   without a network request.
+- Stale-data fallback on fetch failure: `shared/cache/localStorageCache.ts` gained `getStale`
+  (reads a cache entry ignoring its TTL); when a network fetch fails, `usePeople`'s error state now
+  carries that page's last cached data (if any), and `PeopleTable`/`TablePage` render it below the
+  error message, with pagination still available, instead of showing a blank error.
 
 ## [0.1.0] - 2026-08-31
 

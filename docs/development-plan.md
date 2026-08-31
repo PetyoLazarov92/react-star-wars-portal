@@ -312,22 +312,54 @@ fresh fetch and a newer `fetchedAt` is written back.
 
 ### Step 7: Loading & error states (polish)
 
-**Status:** Planned
+**Status:** Done
 
-**What:** Consolidate `usePeople`'s state into one discriminated union covering all real
-combinations now that both cache and network are in play (e.g. showing cached data immediately
-while a background revalidation is in flight, vs. a true first-load spinner, vs. a network error
-with cached data still available to fall back on). Clear, non-technical user-facing error copy.
+**What:** `usePeople`'s `error` state now carries an optional `stale` field
+(`{ people, hasNext, hasPrevious }`): when a network fetch fails, the hook also looks for any
+previously cached entry for that page, ignoring its TTL, and attaches it if one exists. A shared
+`PeopleData` interface (`people`/`hasNext`/`hasPrevious`) removes the duplication that would
+otherwise exist between the `success` and `error.stale` shapes. `shared/cache/localStorageCache.ts`
+gained `getStale(key, dataSchema)`, sharing its envelope-reading and validation logic with
+`getCached` via a private `readEntry` helper, but skipping the TTL check, for this exact fallback
+use case. `PeopleTable.tsx` now renders the table markup through an internal `PeopleDataTable`
+component reused by both the `success` case and the `error` case when `state.stale` is present (the
+latter shown below the `role="alert"` message, with a plain-language note: "Showing previously
+loaded data, which may be out of date."). `TablePage.tsx` now shows `Pagination` whenever there is
+page data to paginate, whether from `success` or from an `error`'s `stale` fallback, driven by a
+shared `pageData` value instead of only checking `state.status === 'success'`.
 
-**Why now:** Steps 4 to 6 introduced multiple overlapping sources of "loading"/"error" (network
-vs. cache); this step is where that gets unified into one coherent state machine instead of ad hoc
-flags accumulating across steps.
+**Why now:** Steps 4 to 6 already converged on a single, clean discriminated union and a
+render-time reset pattern (recorded in the Step 5 and Step 6 decisions), so the "ad hoc flags"
+problem this step was originally scoped to prevent had not actually materialized. The real gap left
+by Step 6 was behavioral: an expired cache entry was already being treated as a plain miss by
+`getCached`, so a fetch failure right after expiry showed a blank error and discarded data that was
+still sitting in `localStorage` and still useful to show.
 
-**Changes:** `usePeople.ts` refactored; `PeopleTable.tsx` updated to reflect the fuller set of
-states.
+**Changes:** `shared/cache/localStorageCache.ts` (`getStale` added, `readEntry` extracted),
+`usePeople.ts` (`PeopleData` interface, `error.stale`, `readStale`), `PeopleTable.tsx`
+(`PeopleDataTable` extracted, error case renders it when `stale` is present), `TablePage.tsx`
+(`pageData` drives `Pagination` visibility for both `success` and stale-fallback `error`).
 
-**Validation:** Manual test of each state (cold load, cached load, background revalidation,
-network failure with and without a cached fallback); `typecheck`/`lint`/`build` pass.
+**Decision:** The plan's parenthetical example of "showing cached data immediately while a
+background revalidation is in flight" (stale-while-revalidate) was deliberately not implemented.
+Step 6 already chose a simpler TTL model (a cache hit is served as-is until it expires, no
+background refresh), and adding true background revalidation on top would mean a second concurrent
+fetch path and a new "revalidating" state, more complexity than the app's scope justifies. The two
+combinations that do actually occur with the existing TTL model, a true first-load spinner (no
+cache to show yet) and a network error with a stale cache entry to fall back on, are what got
+modeled instead.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`
+all pass. Manually exercised against the real API in headless Chrome (driven directly over the
+DevTools protocol): a fresh `/table` load shows the real page-1 data with a `swapi:people:page:1`
+entry written to `localStorage` and no console errors; clearing `localStorage` and reloading
+exercises the true first-load spinner path before data replaces it; rewriting that entry's
+`fetchedAt` to 15 minutes in the past (past the TTL) and blocking network access to the SWAPI host,
+then reloading, shows the `role="alert"` error message together with the stale page-1 table, the
+"Showing previously loaded data, which may be out of date." note, and a pagination nav correctly
+reflecting the stale entry's `hasPrevious: false` / `hasNext: true`; clearing `localStorage`
+entirely with the network still blocked and reloading shows only the error message, with no table
+and no pagination underneath it.
 
 ---
 

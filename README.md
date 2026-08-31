@@ -10,14 +10,16 @@ This README describes the project's real, current state. See
 
 ## Current status
 
-Project foundation, routing, the login form, the data table, pagination, and localStorage caching
-are in place: `/` has a working, client-side validated login form that navigates to `/table` on
-success, and `/table` shows real, paginated SWAPI character data (name, mass, height, hair color,
-skin color) with Previous/Next controls, a loading state, and a generic error message on failure.
-The current page lives in the `?page=` URL search param, so reloading, sharing a link, and browser
-back/forward all keep working. Each fetched page is cached in `localStorage` for five minutes, so
-revisiting it loads instantly without a network request. See `docs/development-plan.md` for what's
-next.
+Project foundation, routing, the login form, the data table, pagination, localStorage caching, and
+loading/error state polish are in place: `/` has a working, client-side validated login form that
+navigates to `/table` on success, and `/table` shows real, paginated SWAPI character data (name,
+mass, height, hair color, skin color) with Previous/Next controls, a loading state, and a generic
+error message on failure. The current page lives in the `?page=` URL search param, so reloading,
+sharing a link, and browser back/forward all keep working. Each fetched page is cached in
+`localStorage` for five minutes, so revisiting it loads instantly without a network request; if a
+fresh fetch fails, the last cached data for that page (even past its five-minute TTL) is shown
+below the error message instead of a blank failure, with pagination still available. See
+`docs/development-plan.md` for what's next.
 
 ## Tech stack
 
@@ -75,14 +77,16 @@ src/
     people/
       people.schema.ts     # Zod schemas for the SWAPI person and paginated list response
       people.types.ts        # Person and PeopleResponse types, inferred from the schemas
-      usePeople.ts            # fetches the given SWAPI page (cache-first), loading/success/error state
+      usePeople.ts            # fetches the given SWAPI page (cache-first), loading/success/error state,
+                              # error state carries a stale cached fallback when one exists
       PeopleTable.tsx           # presentational: renders a PeopleState prop
       Pagination.tsx              # Previous/Next controls, disabled at the first/last page
   shared/
     api/
       httpClient.ts    # fetch wrapper: AbortSignal support, typed ApiError, returns unknown
     cache/
-      localStorageCache.ts    # getCached/setCached: Zod-validated reads with a TTL
+      localStorageCache.ts    # getCached/setCached/getStale: Zod-validated reads, getCached applies
+                              # a TTL, getStale ignores it for fallback use
   App.tsx        # root component, renders the router
   main.tsx       # entry point, wraps App in BrowserRouter
   index.css      # Tailwind entry
