@@ -10,9 +10,9 @@ This README describes the project's real, current state. See
 
 ## Current status
 
-Project foundation and routing skeleton only: tooling, conventions, the development plan, and
-placeholder pages at `/`, `/table`, and a catch-all 404 are in place. The login form and data
-table are not implemented yet. See `docs/development-plan.md` for what's next.
+Project foundation, routing, and the login form are in place: `/` has a working, client-side
+validated login form that navigates to `/table` on success, and `/table` is still a placeholder.
+The data table is not implemented yet. See `docs/development-plan.md` for what's next.
 
 ## Tech stack
 
@@ -60,15 +60,19 @@ src/
     routes.ts      # named route path constants
     router.tsx     # <Routes>/<Route> definitions
   pages/
-    LoginPage.tsx      # placeholder, login form lands in a later step
+    LoginPage.tsx      # renders the login form
     TablePage.tsx       # placeholder, data table lands in a later step
     NotFoundPage.tsx
+  features/
+    auth/
+      loginSchema.ts     # Zod schema for username/password validation
+      LoginForm.tsx        # React Hook Form + zodResolver, navigates to /table on success
   App.tsx        # root component, renders the router
   main.tsx       # entry point, wraps App in BrowserRouter
   index.css      # Tailwind entry
 ```
 
-This will grow feature by feature (`features/auth`, `features/people`, `shared/`) per the plan in
+This will grow feature by feature (`features/people`, `shared/`) per the plan in
 `docs/development-plan.md`, which documents the target folder structure and the reasoning behind
 it.
 

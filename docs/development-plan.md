@@ -109,22 +109,29 @@ login, respectively).
 
 ### Step 2: Login page & validation
 
-**Status:** Planned
+**Status:** Done
 
-**What:** `features/auth/loginSchema.ts` (Zod: username/password, both required, 4 to 30
-characters) and `features/auth/LoginForm.tsx` (React Hook Form + `zodResolver`). Submit button
-disabled while the form is invalid; on valid submit, `navigate('/table')`. No fake authentication,
-no token, no stored session, no protected-route check on `/table`.
+**What:** `features/auth/loginSchema.ts` (Zod: username and password both required, 4 to 30
+characters, with the min/max values named as constants and reused in the error messages) and
+`features/auth/LoginForm.tsx` (React Hook Form in `mode: 'onChange'` with `zodResolver`, so
+`formState.isValid` updates on every keystroke). The submit button is disabled while the form is
+invalid; on valid submit, `navigate(ROUTES.table)` runs and nothing else. No fake authentication,
+no token, no stored session, no protected-route check on `/table`, and neither field's value is
+persisted anywhere. `LoginPage.tsx` now renders `LoginForm` under a heading.
 
 **Why now:** It's the app's entry point and the smallest fully-isolated feature (no external API
-dependency), so it's a good first real feature to validate the RHF + Zod + Tailwind pattern the
+dependency), so it's a good first real feature to validate the RHF, Zod, and Tailwind pattern the
 rest of the app will reuse.
 
-**Changes:** `features/auth/*`, `pages/LoginPage.tsx` updated to render `LoginForm`.
+**Changes:** `src/features/auth/loginSchema.ts`, `src/features/auth/LoginForm.tsx`,
+`src/pages/LoginPage.tsx` updated to render `LoginForm`.
 
-**Validation:** Manual test in browser: empty/short/valid input states, button
-enabled/disabled correctly, submit navigates to `/table`; keyboard-only submission works;
-`typecheck`/`lint`/`build` pass.
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`
+all pass. Manually exercised in a real browser (headless Chrome, driven directly over the DevTools
+protocol so the checks reflect actual rendered and interactive behavior, not just static output):
+the submit button starts disabled, stays disabled and shows the length error while the username is
+too short, becomes enabled once both fields are 4 to 30 characters with the error cleared, and
+clicking submit while valid navigates to `/table`.
 
 ---
 

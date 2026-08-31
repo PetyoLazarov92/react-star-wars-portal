@@ -14,6 +14,10 @@ active development: patch releases are fixes, minor releases are meaningful feat
 - Routing skeleton: `react-router-dom` wired up via `BrowserRouter` in `main.tsx`, named route
   path constants in `src/app/routes.ts`, and `src/app/router.tsx` rendering placeholder
   `LoginPage` (`/`), `TablePage` (`/table`), and a catch-all `NotFoundPage`.
+- Login form: `features/auth/loginSchema.ts` (Zod, username and password required, 4 to 30
+  characters) and `features/auth/LoginForm.tsx` (React Hook Form + `zodResolver`), rendered by
+  `LoginPage`. The submit button is disabled until the form is valid; a valid submit navigates to
+  `/table`. Client-side format validation only, no authentication.
 
 ## [0.1.0] - 2026-08-31
 
