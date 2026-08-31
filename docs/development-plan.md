@@ -265,23 +265,48 @@ to `?page=2` correctly.
 
 ### Step 6: localStorage caching & cache validation
 
-**Status:** Planned
+**Status:** Done
 
-**What:** `shared/cache/localStorageCache.ts`, a small `get`/`set` helper keyed per page (e.g.
-`swapi:people:page:2`), storing `{ data, fetchedAt }`. Reads are validated against the Step 3 Zod
-schema and checked against a TTL before being trusted; anything invalid, expired, or unparsable is
-treated as a cache miss (never thrown as an error to the user). `usePeople` checks the cache
-before hitting the network.
+**What:** `shared/cache/localStorageCache.ts`: a generic `getCached(key, dataSchema, ttlMs)` /
+`setCached(key, data)` pair. `getCached` reads the raw string, parses it as JSON, validates it
+against `z.object({ data: dataSchema, fetchedAt: z.number() })` (the caller's own data schema
+nested inside a small envelope), and checks `fetchedAt` against the given TTL; a missing key,
+unparsable JSON, a shape that fails validation, or an expired `fetchedAt` are all treated the same
+way, as a plain cache miss (`null`), never thrown. `setCached` writes the same envelope and
+swallows any write failure (e.g. a full or disabled store) since caching is best-effort and must
+never break the page. `usePeople` now caches per page under the key `swapi:people:page:<page>`,
+storing the full Step 3 `peopleResponseSchema`-shaped object (so `next`/`previous` are cached
+too, not just the narrowed `results`), with a five-minute TTL. On mount and on every page change,
+it checks the cache first (both in the lazy `useState` initializer and in the page-change
+comparison already used for resetting to `loading`, so a cache hit never shows a loading flash) and
+only runs the network fetch when there is a miss; a successful network fetch writes the cache
+before updating state.
 
 **Why now:** Caching only makes sense once there's real paginated data to cache, and validating it
 is the direct, low-cost application of the schemas already built in Step 3, no new dependency
 needed.
 
-**Changes:** `shared/cache/localStorageCache.ts`, `usePeople.ts` updated to read/write it.
+**Changes:** `shared/cache/localStorageCache.ts` (new), `usePeople.ts` updated to read/write it.
 
-**Validation:** Manual test: revisiting a previously-loaded page shows data instantly from cache;
-clearing/corrupting the relevant `localStorage` key still loads correctly from the network instead
-of erroring; waiting past the TTL triggers a fresh fetch.
+**Decision:** The cache check could not be placed inside the effect's synchronous body in the
+"check cache, else fetch" order originally imagined, for the same `set-state-in-effect` reason
+recorded in Step 5: a cache hit would have meant calling `setState` synchronously at the top of the
+effect. Instead, the cache is read in two places that already run outside the effect: the `useState`
+lazy initializer (for the very first render) and the render-time `page !== requestedPage` check
+already added in Step 5 to reset state on a page change. The effect itself only ever calls
+`getCached` to decide whether to skip fetching. `setState` inside the effect is called exclusively
+from the `fetchJson(...).then(...)`/`.catch(...)` callbacks, same as before.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`
+all pass. Manually exercised against the real API in headless Chrome (driven directly over the
+DevTools protocol): a fresh load of `/table` writes a `swapi:people:page:1` entry to
+`localStorage`; reloading with the SWAPI host blocked at the network layer still renders instantly
+from that cache entry; overwriting the entry with invalid JSON, and separately with valid JSON that
+fails schema validation, both still load correctly from the network on reload rather than erroring;
+an entry with `fetchedAt` set ten minutes in the past (past the five-minute TTL), combined with the
+network blocked, correctly shows the error state instead of serving the stale data, proving expired
+entries are treated as a real miss; the same expired entry with the network available triggers a
+fresh fetch and a newer `fetchedAt` is written back.
 
 ---
 

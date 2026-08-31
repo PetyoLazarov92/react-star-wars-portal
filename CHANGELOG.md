@@ -31,6 +31,10 @@ active development: patch releases are fixes, minor releases are meaningful feat
   page); `usePeople` now fetches the page given to it and reports whether a next/previous page
   exists; the page number lives in the `?page=` URL search param (`TablePage`, validated with Zod,
   defaulting to `1`), so refresh, direct links, and browser back/forward all work.
+- `localStorage` caching: `shared/cache/localStorageCache.ts` (`getCached`/`setCached`, Zod-validated
+  reads with a TTL, any invalid or expired entry treated as a cache miss rather than an error);
+  `usePeople` now caches each fetched page for five minutes and serves a cache hit instantly
+  without a network request.
 
 ## [0.1.0] - 2026-08-31
 

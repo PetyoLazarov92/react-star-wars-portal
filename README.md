@@ -10,12 +10,14 @@ This README describes the project's real, current state. See
 
 ## Current status
 
-Project foundation, routing, the login form, the data table, and pagination are in place: `/` has
-a working, client-side validated login form that navigates to `/table` on success, and `/table`
-shows real, paginated SWAPI character data (name, mass, height, hair color, skin color) with
-Previous/Next controls, a loading state, and a generic error message on failure. The current page
-lives in the `?page=` URL search param, so reloading, sharing a link, and browser back/forward all
-keep working. Caching isn't implemented yet. See `docs/development-plan.md` for what's next.
+Project foundation, routing, the login form, the data table, pagination, and localStorage caching
+are in place: `/` has a working, client-side validated login form that navigates to `/table` on
+success, and `/table` shows real, paginated SWAPI character data (name, mass, height, hair color,
+skin color) with Previous/Next controls, a loading state, and a generic error message on failure.
+The current page lives in the `?page=` URL search param, so reloading, sharing a link, and browser
+back/forward all keep working. Each fetched page is cached in `localStorage` for five minutes, so
+revisiting it loads instantly without a network request. See `docs/development-plan.md` for what's
+next.
 
 ## Tech stack
 
@@ -73,20 +75,21 @@ src/
     people/
       people.schema.ts     # Zod schemas for the SWAPI person and paginated list response
       people.types.ts        # Person and PeopleResponse types, inferred from the schemas
-      usePeople.ts            # fetches the given SWAPI page, loading/success/error state
+      usePeople.ts            # fetches the given SWAPI page (cache-first), loading/success/error state
       PeopleTable.tsx           # presentational: renders a PeopleState prop
       Pagination.tsx              # Previous/Next controls, disabled at the first/last page
   shared/
     api/
       httpClient.ts    # fetch wrapper: AbortSignal support, typed ApiError, returns unknown
+    cache/
+      localStorageCache.ts    # getCached/setCached: Zod-validated reads with a TTL
   App.tsx        # root component, renders the router
   main.tsx       # entry point, wraps App in BrowserRouter
   index.css      # Tailwind entry
 ```
 
-This will grow feature by feature (caching in `features/people`) per the plan in
-`docs/development-plan.md`, which documents the target folder structure and the reasoning behind
-it.
+This will grow feature by feature per the plan in `docs/development-plan.md`, which documents the
+target folder structure and the reasoning behind it.
 
 ## AI-assisted development
 
