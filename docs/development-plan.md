@@ -137,26 +137,42 @@ clicking submit while valid navigates to `/table`.
 
 ### Step 3: API layer & types
 
-**Status:** Planned
+**Status:** Done
 
-**What:** `shared/api/httpClient.ts` (fetch wrapper: builds the URL, sets `Accept`, supports
-`AbortController`, throws a small typed `ApiError` on non-OK responses or network failure).
-`features/people/people.schema.ts`: Zod schemas for a single SWAPI person and the paginated list
-response (`count`/`next`/`previous`/`results`), and a mapper that narrows the raw response down to
-the five fields the UI needs (`name`, `mass`, `height`, `hair_color`, `skin_color`). Types are
-derived from the schemas with `z.infer`, not hand-written separately.
+**What:** `shared/api/httpClient.ts`: a generic `fetchJson(url, signal)` that sets `Accept`,
+accepts an `AbortSignal`, lets a real `AbortError` propagate unchanged (so a caller's cleanup logic
+can ignore it), and otherwise throws a small `ApiError` (a generic message plus an HTTP `status`
+when there is one) on a network failure, a non-OK response, or a body that isn't valid JSON. It
+returns `unknown`, so every caller has to validate the shape before use.
+`features/people/people.schema.ts`: `personSchema` (only `name`, `mass`, `height`, `hair_color`,
+`skin_color`) and `peopleResponseSchema` (`count`, `next`, `previous`, `results`).
+`features/people/people.types.ts`: `Person` and `PeopleResponse`, both `z.infer` from those
+schemas.
 
 **Why now:** Establishing validated, typed API access before building the table means the table
 component only ever deals with clean, trusted data: the messy/untrusted parts (network errors,
 unexpected API shapes) are handled once, at the boundary.
 
-**Changes:** `shared/api/httpClient.ts`, `features/people/people.schema.ts`,
-`features/people/people.types.ts`.
+**Changes:** `src/shared/api/httpClient.ts`, `src/features/people/people.schema.ts`,
+`src/features/people/people.types.ts`.
 
-**Validation:** A temporary manual check (e.g. a console call during development) confirms a real
-request against `https://swapi.py4e.com/api/people` parses successfully and a malformed/mocked
-response is rejected by the schema instead of crashing; `typecheck`/`lint`/`build` pass. No UI
-changes yet.
+**Decision:** The plan called for "a mapper that narrows the raw response down to the five fields
+the UI needs." A separate mapper function turned out to be unnecessary: `z.object()` already drops
+any key that isn't listed in the schema when it parses, so `personSchema.parse(...)` (via
+`peopleResponseSchema`) does the narrowing by itself. Confirmed while testing this step: a raw
+SWAPI person has 16 keys, the parsed result has exactly the 5 defined here. Also worth noting for
+Step 4 and onward: SWAPI's `mass` and `height` are plain strings, not numbers, and can be
+`"unknown"` or contain a comma (e.g. `"1,358"`), so they are typed and rendered as strings rather
+than parsed into numbers.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`
+all pass (these two files aren't imported anywhere yet, so the build output is otherwise
+unchanged). Manually verified from the running dev app (dynamically importing both modules in the
+browser console, against the real API, over the DevTools protocol): a real request to
+`https://swapi.py4e.com/api/people/?page=1` parses successfully and is narrowed from 16 raw keys
+to the 5 expected ones; a malformed shape (wrong types) and a response missing a required field
+are both rejected by the schema instead of crashing; requesting a non-existent person correctly
+throws an `ApiError` with `status: 404` and a generic message.
 
 ---
 

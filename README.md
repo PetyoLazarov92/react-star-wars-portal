@@ -67,12 +67,18 @@ src/
     auth/
       loginSchema.ts     # Zod schema for username/password validation
       LoginForm.tsx        # React Hook Form + zodResolver, navigates to /table on success
+    people/
+      people.schema.ts     # Zod schemas for the SWAPI person and paginated list response
+      people.types.ts        # Person and PeopleResponse types, inferred from the schemas
+  shared/
+    api/
+      httpClient.ts    # fetch wrapper: AbortSignal support, typed ApiError, returns unknown
   App.tsx        # root component, renders the router
   main.tsx       # entry point, wraps App in BrowserRouter
   index.css      # Tailwind entry
 ```
 
-This will grow feature by feature (`features/people`, `shared/`) per the plan in
+This will grow feature by feature (the actual table UI in `features/people`) per the plan in
 `docs/development-plan.md`, which documents the target folder structure and the reasoning behind
 it.
 

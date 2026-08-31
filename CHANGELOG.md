@@ -18,6 +18,10 @@ active development: patch releases are fixes, minor releases are meaningful feat
   characters) and `features/auth/LoginForm.tsx` (React Hook Form + `zodResolver`), rendered by
   `LoginPage`. The submit button is disabled until the form is valid; a valid submit navigates to
   `/table`. Client-side format validation only, no authentication.
+- API layer for the upcoming data table: `shared/api/httpClient.ts` (a generic `fetchJson` with
+  `AbortSignal` support and a typed `ApiError`) and `features/people/people.schema.ts` /
+  `people.types.ts` (Zod schemas and inferred types for the SWAPI person and paginated list
+  response, narrowed to the five fields the table will render). Not wired into any page yet.
 
 ## [0.1.0] - 2026-08-31
 
