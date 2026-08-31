@@ -11,6 +11,7 @@ function PeopleDataTable({ people }: { people: Person[] }) {
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full min-w-max border-collapse text-left">
+        <caption className="sr-only">Star Wars people</caption>
         <thead>
           <tr className="border-b border-slate-300">
             {headers.map((header) => (

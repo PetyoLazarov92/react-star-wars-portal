@@ -488,14 +488,48 @@ widths; the Pagination buttons measure 46px tall and the login inputs/submit but
 
 ### Step 10: Accessibility pass
 
-**Status:** Planned
+**Status:** Done
 
-**What:** Full keyboard-only pass over both pages; verify labels/`aria-describedby` on the form,
-table semantics, focus order, visible focus states, and color contrast; address anything
-`eslint-plugin-jsx-a11y` and manual testing surface.
+**What:** Audited the app in a real browser before changing anything: an automated `axe-core` scan
+(already present in `node_modules` as a transitive dependency of `eslint-plugin-jsx-a11y`, so no
+new dependency was added) found zero violations on `/` and `/table`; a manual keyboard-only pass
+covered tab order, `aria-describedby`/`aria-invalid` on the login form, visible focus indicators,
+the table's semantics, the offline modal's focus handling, and spot-checked color contrast against
+WCAG AA. Because the app was built accessibility-first from Step 1 onward, almost everything
+checked out already built correctly. Two genuine, minor issues were found and fixed:
+
+- The `<table>` in `features/people/PeopleTable.tsx` had no programmatic accessible name: it
+  relied only on the preceding, unassociated page `<h1>`, so a screen reader user jumping directly
+  to the table (e.g. via an AT "next table" command) wouldn't hear what it was. Fixed with a
+  visually hidden `<caption className="sr-only">Star Wars people</caption>` as the table's first
+  child, giving it a real accessible name without changing anything visible.
+- `shared/components/Modal.tsx`'s native `<dialog>` focus trap could leak keyboard focus out to
+  `document.body` on Tab when the dialog has exactly one focusable descendant, which is exactly the
+  offline modal's case (only its close button). Fixed with a manual `onKeyDown` handler on the
+  `<dialog>` that finds the first and last focusable elements inside it and wraps `Tab`/`Shift+Tab`
+  between them, a standard focus-trap fallback layered on top of the native trap rather than
+  replacing it.
 
 **Why now:** Same reasoning as the responsive pass: verify against the finished UI rather than a
 moving target, though the accessibility _requirements_ in `AGENTS.md` apply from Step 1 onward.
+
+**Changes:** `features/people/PeopleTable.tsx` (`<caption>` added), `shared/components/Modal.tsx`
+(`onKeyDown` Tab-wrap handler added). No new files, no new dependencies.
+
+**Decision:** `aria-current="page"` on the Pagination `<span>Page N</span>` (added in Step 5) was
+reviewed and kept as is: it's normally used to mark one link among a set of page-number links,
+which this app doesn't have (only Previous/Next buttons), so it's a slightly atypical use, but it
+is not incorrect and causes no real confusion since the text already states the current page
+number; it wasn't worth changing for its own sake.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build` all
+pass. Verified in headless Chrome (driven directly over the DevTools protocol, using real
+`Input.dispatchKeyEvent` keyboard events rather than just DOM/JS state changes): the table's
+computed accessible name resolves to "Star Wars people" via the new `<caption>` (confirmed through
+the Accessibility domain's computed tree); triggering the offline modal and pressing real Tab and
+Shift+Tab repeatedly keeps focus pinned on its single focusable close button instead of escaping to
+`document.body`; Escape still closes the modal correctly, confirming the new handler didn't
+regress existing behavior; no console errors throughout.
 
 **Changes:** Targeted fixes across existing components.
 

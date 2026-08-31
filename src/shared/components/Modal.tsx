@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react'
+import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
 
 interface ModalProps {
   open: boolean
@@ -6,6 +6,9 @@ interface ModalProps {
   onClose: () => void
   children: ReactNode
 }
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 // Built on the native <dialog> element rather than a hand-rolled overlay: shown via showModal(),
 // it already provides a focus trap, Escape-to-close (the 'cancel' event, which closes the dialog
@@ -27,11 +30,41 @@ function Modal({ open, title, onClose, children }: ModalProps) {
     }
   }, [open])
 
+  // A safety net on top of the native focus trap: with only one focusable descendant (as in the
+  // offline modal, just the close button), Tab/Shift+Tab can otherwise move focus out to
+  // document.body instead of staying on that element.
+  const handleKeyDown = (event: KeyboardEvent<HTMLDialogElement>): void => {
+    if (event.key !== 'Tab') {
+      return
+    }
+
+    const dialog = dialogRef.current
+    if (!dialog) {
+      return
+    }
+
+    const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (!first || !last) {
+      return
+    }
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault()
+      last.focus()
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault()
+      first.focus()
+    }
+  }
+
   return (
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
       onClose={onClose}
+      onKeyDown={handleKeyDown}
       className="m-auto w-[min(24rem,calc(100%-2rem))] rounded-lg border border-slate-300 bg-white p-6 text-slate-900 backdrop:bg-slate-900/50"
     >
       <div className="flex items-center justify-between gap-4">

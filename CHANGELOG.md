@@ -51,6 +51,10 @@ active development: patch releases are fixes, minor releases are meaningful feat
   viewports instead of touching both edges, its close button grew to a proper ~44x44px touch
   target, and the pagination Previous/Next buttons and the login form's inputs/submit button grew
   from ~40-42px tall to ~44-46px tall to comfortably clear the same touch-target guideline.
+- Accessibility pass: the people table now has a real programmatic accessible name via a visually
+  hidden `<caption>`, and the shared `Modal` component's focus trap now wraps Tab/Shift+Tab between
+  its first and last focusable elements as a fallback, fixing a case (the offline modal's single
+  close button) where keyboard focus could otherwise escape to the page body.
 
 ### Fixed
 
