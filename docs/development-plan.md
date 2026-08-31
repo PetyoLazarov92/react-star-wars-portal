@@ -365,23 +365,62 @@ and no pagination underneath it.
 
 ### Step 8: Offline detection & modal
 
-**Status:** Planned
+**Status:** Done
 
-**What:** `shared/hooks/useOnlineStatus.ts` (wraps `navigator.onLine` + `online`/`offline`
-events); `shared/components/Modal.tsx` (accessible dialog: focus trap, `Escape` to close, returns
-focus on close); an offline-specific modal with a simple illustration, shown when the app detects
-it's offline (or a fetch fails for network reasons while online status hasn't updated yet).
+**What:** `shared/hooks/useOnlineStatus.ts`: a hook wrapping `navigator.onLine`, kept in sync via
+the `online`/`offline` window events (added/removed in a `useEffect`). `shared/components/Modal.tsx`:
+a generic, controlled (`open`/`title`/`onClose`/`children`) dialog built on the native `<dialog>`
+element (`showModal()`/`close()` driven by the `open` prop), per the "reach for `<dialog>` before
+hand-rolling one" guidance in `AGENTS.md`: it gets an accessible name via `aria-labelledby`, a focus
+trap, Escape-to-close, and focus restored to whatever had focus before it opened, all as native
+browser behavior, plus an explicit close (×) button as a pointer/non-Escape alternative.
+`app/OfflineModal.tsx`: composes the hook and the primitive into the offline-specific modal (title
+"You're offline", a small inline SVG illustration, and a plain-language explanation), shown
+whenever `useOnlineStatus()` is `false`. Dismissing it (Escape or the close button) keeps it hidden
+for the rest of that offline period, but it re-arms as soon as the connection returns, so it shows
+again the next time the connection actually drops rather than being permanently silenced by one
+dismissal. `App.tsx` renders `<OfflineModal />` alongside `<AppRouter />`, so it's app-wide rather
+than tied to `/table`.
 
 **Why now:** Depends on the table's fetch flow already existing (Steps 4 to 7) so there's a real
 network failure mode to react to; the accessible `Modal` primitive built here is also reusable if
 the project ever needs another dialog.
 
-**Changes:** `shared/hooks/useOnlineStatus.ts`, `shared/components/Modal.tsx`, wiring into
-`TablePage.tsx` (or `App.tsx` if it should be app-wide).
+**Changes:** `shared/hooks/useOnlineStatus.ts` (new), `shared/components/Modal.tsx` (new),
+`app/OfflineModal.tsx` (new, not originally named in the plan, see decision below), `App.tsx`
+updated to render it.
 
-**Validation:** Manually toggle the browser's offline mode (devtools): modal appears/dismisses
-correctly, is keyboard-operable, and doesn't trap focus incorrectly; back online, the table
-recovers.
+**Decision:** The plan named `TablePage.tsx` or `App.tsx` as the two candidate wiring points and
+left the offline-specific modal itself unnamed as a file. App-wide won out: connectivity is a
+device-level condition, not something specific to the people table, so wiring it once at `App.tsx`
+covers every current and future route without per-page duplication. The offline-specific modal
+(illustration, copy, and the dismiss/re-arm behavior) was split into its own `app/OfflineModal.tsx`
+rather than inlined into `App.tsx`, keeping `App.tsx` a thin shell and `Modal.tsx` a fully generic
+primitive with no offline-specific knowledge in it.
+
+The plan's parenthetical "or a fetch fails for network reasons while online status hasn't updated
+yet" was deliberately not wired up: `usePeople`'s own error state (Step 7) already gives a network
+failure a specific, inline treatment for that feature, including a stale-data fallback when one
+exists. Also opening a blocking app-wide modal on top of that would fight with, rather than
+complement, an inline experience that's often already showing useful stale data underneath;
+`navigator.onLine` plus the `online`/`offline` events remains the modal's only trigger.
+
+For re-arming the dismissal once back online, the render-time "adjust state when a prop changes"
+pattern already used in `usePeople` (Steps 5 and 6) was reused here too: comparing the current
+`isOnline` value against the last-seen one during render and resetting `dismissed` there, rather
+than in a `useEffect`, keeps the same convention instead of introducing a different way to react to
+a changing value.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`
+all pass. Manually exercised in headless Chrome (driven directly over the DevTools protocol, since
+the harness has no real network to disconnect): overriding `navigator.onLine` to `false` and
+dispatching a synthetic `offline` event opens the dialog with the accessible name "You're offline",
+the illustration, and the explanatory text, with no console errors; before dismissing it, the
+focused element (the close button) is inside the dialog, confirming the native focus trap; a real
+Escape keypress closes it via the native `cancel`/`close` behavior; while still offline, it stays
+dismissed and does not reappear on its own; flipping back to online (and dispatching `online`)
+keeps it hidden; going offline again afterward makes it reappear, confirming the dismissal resets on
+reconnect; the close (×) button closes it as an alternative to Escape.
 
 ---
 

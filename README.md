@@ -10,16 +10,18 @@ This README describes the project's real, current state. See
 
 ## Current status
 
-Project foundation, routing, the login form, the data table, pagination, localStorage caching, and
-loading/error state polish are in place: `/` has a working, client-side validated login form that
-navigates to `/table` on success, and `/table` shows real, paginated SWAPI character data (name,
-mass, height, hair color, skin color) with Previous/Next controls, a loading state, and a generic
-error message on failure. The current page lives in the `?page=` URL search param, so reloading,
-sharing a link, and browser back/forward all keep working. Each fetched page is cached in
-`localStorage` for five minutes, so revisiting it loads instantly without a network request; if a
-fresh fetch fails, the last cached data for that page (even past its five-minute TTL) is shown
-below the error message instead of a blank failure, with pagination still available. See
-`docs/development-plan.md` for what's next.
+Project foundation, routing, the login form, the data table, pagination, localStorage caching,
+loading/error state polish, and offline detection are in place: `/` has a working, client-side
+validated login form that navigates to `/table` on success, and `/table` shows real, paginated
+SWAPI character data (name, mass, height, hair color, skin color) with Previous/Next controls, a
+loading state, and a generic error message on failure. The current page lives in the `?page=` URL
+search param, so reloading, sharing a link, and browser back/forward all keep working. Each fetched
+page is cached in `localStorage` for five minutes, so revisiting it loads instantly without a
+network request; if a fresh fetch fails, the last cached data for that page (even past its
+five-minute TTL) is shown below the error message instead of a blank failure, with pagination still
+available. Losing the connection anywhere in the app shows an accessible, dismissible offline
+modal that reappears the next time the connection drops. See `docs/development-plan.md` for what's
+next.
 
 ## Tech stack
 
@@ -66,6 +68,7 @@ src/
   app/
     routes.ts      # named route path constants
     router.tsx     # <Routes>/<Route> definitions
+    OfflineModal.tsx  # offline-specific modal, shown app-wide via useOnlineStatus
   pages/
     LoginPage.tsx      # renders the login form
     TablePage.tsx       # renders the people table
@@ -87,7 +90,11 @@ src/
     cache/
       localStorageCache.ts    # getCached/setCached/getStale: Zod-validated reads, getCached applies
                               # a TTL, getStale ignores it for fallback use
-  App.tsx        # root component, renders the router
+    hooks/
+      useOnlineStatus.ts    # navigator.onLine, kept in sync via the online/offline events
+    components/
+      Modal.tsx    # generic accessible dialog built on the native <dialog> element
+  App.tsx        # root component, renders the router and the app-wide OfflineModal
   main.tsx       # entry point, wraps App in BrowserRouter
   index.css      # Tailwind entry
 ```

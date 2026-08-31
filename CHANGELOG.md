@@ -39,6 +39,11 @@ active development: patch releases are fixes, minor releases are meaningful feat
   (reads a cache entry ignoring its TTL); when a network fetch fails, `usePeople`'s error state now
   carries that page's last cached data (if any), and `PeopleTable`/`TablePage` render it below the
   error message, with pagination still available, instead of showing a blank error.
+- Offline detection and modal: `shared/hooks/useOnlineStatus.ts` (`navigator.onLine`, kept in sync
+  via the `online`/`offline` events), `shared/components/Modal.tsx` (a generic accessible dialog
+  built on the native `<dialog>` element), and `app/OfflineModal.tsx` (the offline-specific modal,
+  wired app-wide in `App.tsx`), shown whenever the browser reports no connection and re-armed for
+  the next disconnect after being dismissed once the connection returns.
 
 ## [0.1.0] - 2026-08-31
 

@@ -1,7 +1,13 @@
 import AppRouter from './app/router'
+import OfflineModal from './app/OfflineModal'
 
 function App() {
-  return <AppRouter />
+  return (
+    <>
+      <AppRouter />
+      <OfflineModal />
+    </>
+  )
 }
 
 export default App
