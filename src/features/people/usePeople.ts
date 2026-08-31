@@ -5,21 +5,35 @@ import type { Person } from './people.types'
 
 const PEOPLE_ENDPOINT = 'https://swapi.py4e.com/api/people'
 
-type PeopleState =
+export type PeopleState =
   | { status: 'loading' }
-  | { status: 'success'; people: Person[] }
+  | { status: 'success'; people: Person[]; hasNext: boolean; hasPrevious: boolean }
   | { status: 'error'; message: string }
 
-export function usePeople(): PeopleState {
+export function usePeople(page: number): PeopleState {
+  const [requestedPage, setRequestedPage] = useState(page)
   const [state, setState] = useState<PeopleState>({ status: 'loading' })
+
+  if (page !== requestedPage) {
+    setRequestedPage(page)
+    setState({ status: 'loading' })
+  }
 
   useEffect(() => {
     const controller = new AbortController()
 
-    fetchJson(PEOPLE_ENDPOINT, controller.signal)
+    const url = new URL(PEOPLE_ENDPOINT)
+    url.searchParams.set('page', String(page))
+
+    fetchJson(url.toString(), controller.signal)
       .then((data) => {
-        const { results } = peopleResponseSchema.parse(data)
-        setState({ status: 'success', people: results })
+        const parsed = peopleResponseSchema.parse(data)
+        setState({
+          status: 'success',
+          people: parsed.results,
+          hasNext: parsed.next !== null,
+          hasPrevious: parsed.previous !== null,
+        })
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError') {
@@ -32,7 +46,7 @@ export function usePeople(): PeopleState {
       })
 
     return () => controller.abort()
-  }, [])
+  }, [page])
 
   return state
 }

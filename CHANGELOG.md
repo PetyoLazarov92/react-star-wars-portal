@@ -27,6 +27,10 @@ active development: patch releases are fixes, minor releases are meaningful feat
   (a semantic `<table>` of name, mass, height, hair color, and skin color, with a loading line and
   a generic, non-technical error message), rendered by `TablePage` at `/table`. No pagination or
   caching yet.
+- Pagination: `features/people/Pagination.tsx` (Previous/Next controls, disabled at the first/last
+  page); `usePeople` now fetches the page given to it and reports whether a next/previous page
+  exists; the page number lives in the `?page=` URL search param (`TablePage`, validated with Zod,
+  defaulting to `1`), so refresh, direct links, and browser back/forward all work.
 
 ## [0.1.0] - 2026-08-31
 

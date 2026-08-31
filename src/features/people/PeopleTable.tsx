@@ -1,10 +1,12 @@
-import { usePeople } from './usePeople'
+import type { PeopleState } from './usePeople'
 
 const headers = ['Name', 'Mass', 'Height', 'Hair color', 'Skin color']
 
-function PeopleTable() {
-  const state = usePeople()
+interface PeopleTableProps {
+  state: PeopleState
+}
 
+function PeopleTable({ state }: PeopleTableProps) {
   if (state.status === 'loading') {
     return (
       <p role="status" className="text-slate-600">

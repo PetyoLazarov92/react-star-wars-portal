@@ -214,21 +214,52 @@ now. Please try again later.") instead of a crash or a leaked technical error.
 
 ### Step 5: Pagination
 
-**Status:** Planned
+**Status:** Done
 
-**What:** `features/people/Pagination.tsx`; `usePeople` takes a validated page number (from the
-`?page=` URL search param, parsed with Zod, defaulting to `1` if missing/invalid) and fetches the
-matching SWAPI page. Next/previous controls update the URL via `navigate`.
+**What:** `features/people/Pagination.tsx`: a `<nav aria-label="Pagination">` with Previous/Next
+buttons and a "Page N" label, taking `page`, `hasNext`, `hasPrevious`, `onPrevious`, and `onNext`
+as props. `usePeople` now takes a `page: number` argument, builds the SWAPI request URL with
+`URL`/`searchParams.set` (never string-interpolating the page value), re-fetches whenever `page`
+changes, and reports `hasNext`/`hasPrevious` on its success state directly from SWAPI's own
+`next`/`previous` response fields (both `string | null`), rather than computing them from `count`
+and a hardcoded page size. `TablePage.tsx` reads and validates the `?page=` search param with Zod
+(`z.coerce.number().int().positive()`, falling back to `1` on a missing or invalid value), owns
+the single `usePeople(page)` call, and passes the resulting state down to `PeopleTable` (now a
+prop-driven, presentational component) and to `Pagination`; the Previous/Next handlers update the
+URL via `setSearchParams`.
 
 **Why now:** Natural next layer on top of a working single-page table; keeping the page number in
 the URL (rather than only in component state) is what makes routing "predictable": refresh,
 back/forward, and sharing a link to page 3 all keep working.
 
-**Changes:** `features/people/Pagination.tsx`, `usePeople.ts` updated, `TablePage.tsx` updated.
+**Changes:** `features/people/Pagination.tsx` (new), `usePeople.ts` updated, `TablePage.tsx`
+updated, and `PeopleTable.tsx` updated (see decision below; not originally planned for this step).
 
-**Validation:** Manual test: next/previous disable at the first/last page, browser back/forward
-moves between pages correctly, reloading on `/table?page=2` shows page 2 directly, an invalid
-`?page=` value falls back to page 1 without crashing.
+**Decision:** The original plan didn't list `PeopleTable.tsx` as a change for this step. In
+practice, `Pagination` needs `hasNext`/`hasPrevious`, which only exist after `usePeople` resolves,
+and `Pagination` is rendered as a sibling of `PeopleTable`, not a child of it. Calling `usePeople`
+independently in two sibling components would have meant two competing fetches for the same data.
+Instead, `TablePage` now makes the single `usePeople(page)` call and passes the resulting
+`PeopleState` down as a prop to both `PeopleTable` (which lost its internal `usePeople()` call and
+became presentational) and `Pagination`, so the fetched state has exactly one owner.
+
+Separately, resetting `usePeople`'s state to `{ status: 'loading' }` when `page` changes could not
+be done with a synchronous `setState` call at the top of the effect body: `eslint-plugin-react-hooks`'s
+`set-state-in-effect` rule flags that pattern (it also flagged the analogous, redundant call removed
+in Step 4). The fix is the pattern React's own docs describe for "adjusting state when a prop
+changes": track the last-requested page in its own `useState`, and when the incoming `page` prop
+no longer matches it, call `setState` conditionally during render (not inside the effect) to reset
+to `loading` before the effect re-fetches.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`
+all pass. Manually exercised against the real API in headless Chrome (driven directly over the
+DevTools protocol): loading `/table` shows page 1 with Previous disabled; clicking Next updates the
+URL to `?page=2`, shows page 2's data (first row `Anakin Skywalker`), and enables Previous;
+reloading directly on `/table?page=2` shows page 2 immediately; navigating to the real last page
+(`?page=9`, from SWAPI's `count: 87` at 10 results per page) shows Next disabled; an invalid
+`?page=abc` value falls back to page 1 instead of crashing; browser back/forward after two Next
+clicks moves `/table` -> `?page=2` -> `?page=3` -> back to `?page=2` -> back to `/table` -> forward
+to `?page=2` correctly.
 
 ---
 
