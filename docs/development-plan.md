@@ -422,6 +422,16 @@ dismissed and does not reappear on its own; flipping back to online (and dispatc
 keeps it hidden; going offline again afterward makes it reappear, confirming the dismissal resets on
 reconnect; the close (×) button closes it as an alternative to Escape.
 
+**Follow-up fix:** After this step shipped, the modal was reported appearing pinned to the top-right
+corner instead of centered. Cause: Tailwind's preflight resets `margin: 0` on all elements
+(`shared/components/Modal.tsx` is a `<dialog>`), and that author-origin rule overrides the browser's
+built-in `dialog:modal { margin: auto }` centering, regardless of selector specificity, because
+author rules beat user-agent rules in the cascade. The native `position: fixed; inset: 0` for a
+modal dialog was untouched by preflight, so adding the `m-auto` Tailwind utility to the `<dialog>`
+element's `className` was enough to restore centering, both horizontally and vertically, with no
+other behavior, accessibility, or styling changes. Verified in headless Chrome: the dialog's
+computed margins resolve to exact centering in the viewport, and the backdrop still covers it fully.
+
 ---
 
 ### Step 9: Responsive styling pass

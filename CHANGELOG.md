@@ -45,6 +45,13 @@ active development: patch releases are fixes, minor releases are meaningful feat
   wired app-wide in `App.tsx`), shown whenever the browser reports no connection and re-armed for
   the next disconnect after being dismissed once the connection returns.
 
+### Fixed
+
+- Offline modal appearing pinned to the top-right corner instead of centered: Tailwind's preflight
+  resets `margin: 0` on all elements, which overrode the browser's built-in centering for the
+  native `<dialog>` element. Restored with an explicit `m-auto` on `shared/components/Modal.tsx`'s
+  `<dialog>`.
+
 ## [0.1.0] - 2026-08-31
 
 ### Added
