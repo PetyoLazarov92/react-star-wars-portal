@@ -178,12 +178,17 @@ throws an `ApiError` with `status: 404` and a generic message.
 
 ### Step 4: Table page (basic)
 
-**Status:** Planned
+**Status:** Done
 
-**What:** `features/people/usePeople.ts` (fetches page 1 via the Step 3 client/schema) and
-`features/people/PeopleTable.tsx` rendering name/mass/height/hair color/skin color in a semantic
-`<table>`. Minimal loading and error states only (spinner / plain error message): they get
-refined in Step 7 once caching and pagination exist.
+**What:** `features/people/usePeople.ts`: a hook that fetches page 1 via the Step 3
+`fetchJson`/`peopleResponseSchema`, holding state as a discriminated union
+(`loading` / `success` / `error`) and cleaning up with `AbortController` on unmount. A real
+`AbortError` is swallowed (no state update on an unmounted/re-run effect); any other failure
+(network error, non-OK response, or a response that fails schema validation) sets a single
+generic, non-technical error message, never the raw error. `features/people/PeopleTable.tsx`
+renders name/mass/height/hair color/skin color in a semantic `<table>` with `scope="col"`
+headers, plus a `role="status"` loading line and a `role="alert"` error line. `pages/TablePage.tsx`
+now renders it under a heading.
 
 **Why now:** Ship the core "see real data on screen" milestone before layering pagination and
 caching on top of it, so each later step adds one concern at a time to something already working.
@@ -191,8 +196,19 @@ caching on top of it, so each later step adds one concern at a time to something
 **Changes:** `features/people/usePeople.ts`, `features/people/PeopleTable.tsx`,
 `pages/TablePage.tsx` updated to render it.
 
-**Validation:** `/table` shows real SWAPI data in the browser; a simulated failure (e.g. temporary
-bad URL) shows the error state instead of a crash; `typecheck`/`lint`/`build` pass.
+**Decision:** An initial explicit `setState({ status: 'loading' })` call at the top of the effect
+tripped the `react-hooks/set-state-in-effect` ESLint rule (setState called synchronously within an
+effect body). It was also redundant: `useState`'s initial value is already `{ status: 'loading' }`,
+and the effect only re-runs when the component mounts, so the line was removed rather than the
+rule suppressed.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, and `npm run build`
+all pass. Manually exercised against the real API in headless Chrome (driven directly over the
+DevTools protocol): `/table` renders the real SWAPI page-1 rows (10 characters, headers Name,
+Mass, Height, Hair color, Skin color; first row `Luke Skywalker / 77 / 172 / blond / fair`) with no
+console errors. A simulated failure (blocking requests to the SWAPI host at the network layer,
+then reloading) shows the `role="alert"` error message ("Unable to load Star Wars characters right
+now. Please try again later.") instead of a crash or a leaked technical error.
 
 ---
 

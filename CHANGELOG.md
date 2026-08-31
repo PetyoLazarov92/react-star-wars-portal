@@ -22,6 +22,11 @@ active development: patch releases are fixes, minor releases are meaningful feat
   `AbortSignal` support and a typed `ApiError`) and `features/people/people.schema.ts` /
   `people.types.ts` (Zod schemas and inferred types for the SWAPI person and paginated list
   response, narrowed to the five fields the table will render). Not wired into any page yet.
+- Basic data table: `features/people/usePeople.ts` (fetches SWAPI page 1, holding
+  loading/success/error state as a discriminated union) and `features/people/PeopleTable.tsx`
+  (a semantic `<table>` of name, mass, height, hair color, and skin color, with a loading line and
+  a generic, non-technical error message), rendered by `TablePage` at `/table`. No pagination or
+  caching yet.
 
 ## [0.1.0] - 2026-08-31
 

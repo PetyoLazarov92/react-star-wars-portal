@@ -1,0 +1,52 @@
+import { usePeople } from './usePeople'
+
+const headers = ['Name', 'Mass', 'Height', 'Hair color', 'Skin color']
+
+function PeopleTable() {
+  const state = usePeople()
+
+  if (state.status === 'loading') {
+    return (
+      <p role="status" className="text-slate-600">
+        Loading Star Wars characters...
+      </p>
+    )
+  }
+
+  if (state.status === 'error') {
+    return (
+      <p role="alert" className="text-red-600">
+        {state.message}
+      </p>
+    )
+  }
+
+  return (
+    <div className="w-full overflow-x-auto">
+      <table className="w-full min-w-max border-collapse text-left">
+        <thead>
+          <tr className="border-b border-slate-300">
+            {headers.map((header) => (
+              <th key={header} scope="col" className="px-3 py-2 font-medium text-slate-700">
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {state.people.map((person) => (
+            <tr key={person.name} className="border-b border-slate-200">
+              <td className="px-3 py-2 text-slate-900">{person.name}</td>
+              <td className="px-3 py-2 text-slate-900">{person.mass}</td>
+              <td className="px-3 py-2 text-slate-900">{person.height}</td>
+              <td className="px-3 py-2 text-slate-900">{person.hair_color}</td>
+              <td className="px-3 py-2 text-slate-900">{person.skin_color}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+export default PeopleTable
