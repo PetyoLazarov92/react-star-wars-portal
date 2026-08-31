@@ -1,0 +1,9 @@
+---
+description: Shared project instructions (architecture, conventions, security, dependency rules, workflow)
+alwaysApply: true
+---
+
+Follow the project's shared AI instructions in full: @../../AGENTS.md
+
+Also check @../../docs/development-plan.md for the current architecture status and next step
+before starting work.
