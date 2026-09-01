@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
+import { INTERACTIVE_CLASS_NAME } from '../focusRing'
 
 interface ModalProps {
   open: boolean
@@ -65,7 +66,7 @@ function Modal({ open, title, onClose, children }: ModalProps) {
       aria-labelledby={titleId}
       onClose={onClose}
       onKeyDown={handleKeyDown}
-      className="m-auto w-[min(24rem,calc(100%-2rem))] rounded-lg border border-slate-300 bg-white p-6 text-slate-900 backdrop:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:backdrop:bg-black/60"
+      className="m-auto w-[min(24rem,calc(100%-2rem))] rounded-lg border border-slate-300 bg-white p-6 text-slate-900 shadow-xl backdrop:bg-slate-900/50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:backdrop:bg-black/60"
     >
       <div className="flex items-center justify-between gap-4">
         <h2 id={titleId} className="text-lg font-semibold">
@@ -75,7 +76,7 @@ function Modal({ open, title, onClose, children }: ModalProps) {
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded text-xl leading-none text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+          className={`flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded text-xl leading-none text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white ${INTERACTIVE_CLASS_NAME}`}
         >
           &times;
         </button>

@@ -3,11 +3,12 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../app/routes'
+import { INTERACTIVE_CLASS_NAME } from '../../shared/focusRing'
 import { loginSchema, type LoginFormValues } from './loginSchema'
 import { useSession } from './useSession'
 
 const inputClassName =
-  'min-h-11 rounded border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-slate-400 dark:focus:ring-slate-500'
+  'min-h-11 rounded border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-sky-400 dark:focus:ring-sky-400'
 
 function EyeIcon() {
   return (
@@ -117,7 +118,7 @@ function LoginForm() {
             type="button"
             onClick={() => setShowPassword((current) => !current)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="absolute inset-y-0 right-0 flex min-h-11 min-w-11 items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+            className={`absolute inset-y-0 right-0 flex min-h-11 min-w-11 items-center justify-center rounded text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white ${INTERACTIVE_CLASS_NAME}`}
           >
             {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
           </button>
@@ -132,7 +133,7 @@ function LoginForm() {
       <button
         type="submit"
         disabled={!isValid}
-        className="min-h-11 rounded bg-slate-900 px-4 py-2.5 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900"
+        className={`min-h-11 rounded bg-slate-900 px-4 py-2.5 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 ${INTERACTIVE_CLASS_NAME}`}
       >
         Log in
       </button>

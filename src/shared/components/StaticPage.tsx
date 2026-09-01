@@ -6,7 +6,7 @@ interface StaticPageProps {
 }
 
 const PROSE_CLASS_NAME =
-  'space-y-4 text-slate-700 dark:text-slate-300 [&_h2]:mt-6 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-slate-900 [&_h2]:dark:text-slate-100 [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5 [&_li]:leading-relaxed [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_code]:dark:bg-slate-800 [&_a]:text-sky-700 [&_a]:underline [&_a]:underline-offset-2 [&_a]:hover:text-sky-900 [&_a]:dark:text-sky-400 [&_a]:dark:hover:text-sky-300'
+  'space-y-4 text-slate-700 dark:text-slate-300 [&_h2]:mt-6 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-slate-900 [&_h2]:dark:text-slate-100 [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5 [&_li]:leading-relaxed [&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_code]:dark:bg-slate-800 [&_a]:text-sky-700 [&_a]:underline [&_a]:underline-offset-2 [&_a]:transition-colors [&_a]:duration-150 [&_a]:hover:text-sky-900 [&_a]:dark:text-sky-400 [&_a]:dark:hover:text-sky-300'
 
 // Shared layout for long-form content pages (About, Privacy Policy, Terms and Conditions): the
 // page itself writes plain semantic HTML (h2, p, ul/li, a, code), and this wrapper applies

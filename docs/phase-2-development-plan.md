@@ -416,16 +416,79 @@ errors.
 
 ### Step 9: Material Design polish and accessibility pass
 
-**Status:** Planned
+**Status:** Done (shipped as `1.9.0`)
 
-**What:** A whole-app pass once every feature above is in place, measured against the "Design
-direction" section above: a consistent elevation scale applied to the header, the modal, and any
-card-like surfaces; a consistent border-radius and spacing rhythm across buttons, inputs, the
-table, and toasts; consistent hover/`focus-visible`/active/disabled states on every interactive
-element; short, purposeful transitions where they help (opening the modal, showing a toast,
-hovering a button) and none where they don't; and a repeat of the Phase 1 axe-core/keyboard
-navigation audit against the larger surface area this phase adds (header, footer, toasts, static
-pages, session UI).
+**What:** Audited first, per the Phase 1 precedent for this kind of step: an `axe-core` scan
+(already a transitive dependency, same as Phase 1 Step 10, so no new dependency) across `/`,
+`/table`, `/about`, `/privacy`, and `/terms`, in both themes, reported zero violations both before
+and after this step's changes, confirming nothing here was an accessibility bug so much as a
+polish gap the plan's own "Design direction" section named. Reading every interactive component
+against that section's criteria turned up two genuine, concrete gaps, both fixed:
+
+- **No consistent focus-visible treatment.** Every button and link relied on the bare browser
+  default outline, which is accessible but generic, not something the app deliberately designed.
+  Fixed with a new `src/shared/focusRing.ts` (`INTERACTIVE_CLASS_NAME`: a solid sky-colored outline
+  plus a short transition), applied to every interactive control that didn't already define its
+  own treatment: the header's nav links and `Log out` button, `ThemeToggle`/`UnitToggle`'s
+  segmented buttons, `Pagination`'s Previous/Next buttons, the login form's submit and
+  password-visibility buttons, `Modal`'s and the toast's close/dismiss buttons, the footer's links,
+  and the 404 page's link. The login form's own input focus ring was also changed from neutral
+  slate to the same sky accent, so focus reads as one consistent color everywhere, not two.
+- **No elevation (shadow) scale**, despite the design direction naming the header and the modal
+  specifically. The toast stack already had `shadow-lg`; the header and `Modal` had none. Added a
+  three-tier scale: `shadow-sm` on the sticky header (subtle, since it's always on screen),
+  `shadow-lg` on toasts (unchanged), `shadow-xl` on `Modal` (most prominent, since it's the one
+  blocking, full-attention surface).
+
+Everything else checked against the design direction (border-radius scale, spacing rhythm, hover
+and disabled states) was already consistent: a two-tier radius system (`rounded` for controls,
+`rounded-lg` for surfaces like `Modal` and toasts) was already in place across every component from
+earlier steps, and hover/disabled states already existed everywhere they were needed. No changes
+were made there, consistent with the Phase 1 precedent of not changing what isn't actually broken.
+Modal open/close and toast enter/exit animations were considered and deliberately not added: both
+already work correctly and accessibly without one, and animating a native `<dialog>`'s entrance
+needs either newer `@starting-style` CSS (no Tailwind utility for it) or extra mount-timing state
+for the toast, for a cosmetic gain not called for here.
 
 **Why now:** Same reasoning as Phase 1's equivalent closing steps: polishing against a moving
 target means redoing it, so this runs last, once every other step's UI actually exists to polish.
+
+**Changes:** `src/shared/focusRing.ts` (new), `src/app/Header.tsx` (`shadow-sm`, focus ring on the
+brand link and nav items), `shared/components/ThemeToggle.tsx` / `features/people/UnitToggle.tsx`
+(focus ring on each segmented button), `features/people/Pagination.tsx` (focus ring),
+`features/auth/LoginForm.tsx` (focus ring on the submit and password-toggle buttons; input focus
+ring color unified to sky), `shared/components/Modal.tsx` (`shadow-xl`, focus ring on the close
+button), `shared/toast/ToastProvider.tsx` (focus ring on the dismiss button), `app/Footer.tsx` and
+`pages/NotFoundPage.tsx` (focus ring plus a hover color the 404 link was missing entirely),
+`shared/components/StaticPage.tsx` (a hover-color transition added to prose links).
+
+**Bug found and fixed during validation:** the first attempt at the focus ring used `outline-none`
+unconditionally plus `focus-visible:outline-2`, on the assumption the latter would restore a
+visible outline at focus time. Testing it (via `getComputedStyle(...).outlineStyle` in a headless
+browser check, not a screenshot alone, since an invisible-by-definition bug doesn't show up as a
+visible difference) found `outline-style: none` even while focus-visible matched. Cause: Tailwind
+v4's `outline-<n>` utilities read `outline-style` from a shared `--tw-outline-style` custom
+property, which Tailwind's own base layer sets to `solid` on every element by default;
+`outline-none` overwrites that same property to `none` unconditionally (it isn't scoped to
+`:focus-visible`), and no `focus-visible:` utility ever writes the property back, only reads it, so
+it stayed `none` even once focused. Fixed by dropping `outline-none` entirely: Tailwind's own
+default (`solid`) is exactly what's needed, and the CSS-spec initial `outline-style` (`none`,
+absent any authored outline utility) already keeps the outline invisible outside `:focus-visible`
+with no extra class required.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (71 tests,
+unchanged, since this step was styling-only), and `npm run build` all pass. `axe-core` reported
+zero violations on all five routes, both themes, both before and after. Verified the focus ring
+itself against the real dev server in headless Chrome: `getComputedStyle` on the actively-focused
+element after a real `Input.dispatchKeyEvent` Tab press confirmed `outline-style: solid`,
+`outline-width: 2px`, and the sky outline color, in both light and dark; a cropped screenshot of
+the focused `Login` link shows a clearly visible ring. The header's and `Modal`'s computed
+`box-shadow` values confirmed `shadow-sm` and `shadow-xl` are actually applied (not just present in
+source). Tab order through the header (brand link, then `Login`, then the three theme buttons)
+was unchanged from before this step.
+
+---
+
+All nine steps originally planned for this phase are complete as of `1.9.0`. Any further UI/UX
+work beyond what's described above (e.g. real user accounts, additional unit types, more toast use
+sites) would be a new phase with its own plan document, not an addition to this one.

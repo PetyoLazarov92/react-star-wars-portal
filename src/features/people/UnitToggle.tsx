@@ -1,3 +1,5 @@
+import { INTERACTIVE_CLASS_NAME } from '../../shared/focusRing'
+
 interface UnitOption<T extends string> {
   value: T
   label: string
@@ -29,7 +31,7 @@ function UnitToggle<T extends string>({ label, value, options, onChange }: UnitT
               type="button"
               aria-pressed={isActive}
               onClick={() => onChange(option.value)}
-              className={`min-h-10 rounded px-3 text-sm font-medium ${
+              className={`min-h-10 rounded px-3 text-sm font-medium ${INTERACTIVE_CLASS_NAME} ${
                 isActive
                   ? 'bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-white'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'

@@ -1,5 +1,6 @@
-const buttonClassName =
-  'min-h-11 rounded border border-slate-300 px-4 py-2.5 font-medium text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-100'
+import { INTERACTIVE_CLASS_NAME } from '../../shared/focusRing'
+
+const buttonClassName = `min-h-11 rounded border border-slate-300 px-4 py-2.5 font-medium text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-100 ${INTERACTIVE_CLASS_NAME}`
 
 interface PaginationProps {
   page: number

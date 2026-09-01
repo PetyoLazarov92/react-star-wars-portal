@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
+import { INTERACTIVE_CLASS_NAME } from '../shared/focusRing'
 import { ROUTES } from './routes'
 
-const footerLinkClassName =
-  'underline-offset-2 hover:underline hover:text-slate-900 dark:hover:text-white'
+const footerLinkClassName = `rounded underline-offset-2 hover:underline hover:text-slate-900 dark:hover:text-white ${INTERACTIVE_CLASS_NAME}`
 
 function Footer() {
   const year = new Date().getFullYear()

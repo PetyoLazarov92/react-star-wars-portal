@@ -12,6 +12,42 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-09-02
+
+### Added
+
+- `src/shared/focusRing.ts` (`INTERACTIVE_CLASS_NAME`): a single, consistent focus-visible
+  (a solid sky-colored outline, not Tailwind's `ring` utilities, so it reads correctly against
+  any background without a matching `ring-offset-color`) and hover-transition treatment, applied
+  to every interactive control across the app that didn't already define its own: the header's
+  nav links and Log out button, the theme and unit segmented controls, Pagination's Previous/Next
+  buttons, the login form's submit and password-visibility buttons, the Modal and Toast close/
+  dismiss buttons, the footer's links, and the 404 page's link.
+- A three-tier elevation (shadow) scale for the app's floating/overlay surfaces: the sticky header
+  gained a subtle `shadow-sm`, the blocking `Modal` (used by the offline dialog) gained a
+  prominent `shadow-xl`, alongside the toast stack's existing `shadow-lg`.
+
+### Changed
+
+- The login form's input focus ring (`border`/`ring` color on focus) changed from neutral slate to
+  sky, matching the new focus-visible accent color used everywhere else, so "this is focused"
+  reads as one consistent visual language across inputs, buttons, and links.
+
+### Fixed
+
+- The first pass of the new focus-visible treatment used `outline-none` (unconditionally) plus
+  `focus-visible:outline-2` (width only), assuming the latter would restore a visible outline at
+  focus time. It didn't: Tailwind v4's `outline-<n>` utilities read `outline-style` from a shared
+  `--tw-outline-style` custom property that Tailwind's own base layer sets to `solid` on every
+  element, and `outline-none` overwrites that same property to `none` unconditionally, not scoped
+  to `:focus-visible`. No `focus-visible:` utility ever writes that property back, only reads it,
+  so once set to `none` it stayed `none` even while focused, and the ring was invisible. Fixed by
+  removing `outline-none` entirely: leaving the property at Tailwind's own default (`solid`) and
+  applying width/offset/color only within `focus-visible:` is enough on its own, since the CSS-spec
+  initial `outline-style` (`none`, absent any authored outline utility) already keeps it invisible
+  outside `:focus-visible`. Caught by computing `getComputedStyle(...).outlineStyle` in a headless
+  browser check rather than trusting a screenshot alone, since the bug was invisible-by-definition.
+
 ## [1.8.0] - 2026-09-01
 
 ### Added
@@ -264,7 +300,8 @@ rather than batching several steps under one release.
   messages, aligned with the Semantic Versioning policy. AI tools suggest commit messages only;
   commits are made manually.
 
-[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.8.0...HEAD
+[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.5.0...v1.6.0

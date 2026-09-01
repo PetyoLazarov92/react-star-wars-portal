@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import { useTheme, type ThemePreference } from '../hooks/useTheme'
+import { INTERACTIVE_CLASS_NAME } from '../focusRing'
 
 function SunIcon() {
   return (
@@ -82,7 +83,7 @@ function ThemeToggle() {
             aria-pressed={isActive}
             aria-label={label}
             onClick={() => setPreference(value)}
-            className={`flex min-h-10 min-w-10 items-center justify-center rounded ${
+            className={`flex min-h-10 min-w-10 items-center justify-center rounded ${INTERACTIVE_CLASS_NAME} ${
               isActive
                 ? 'bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-white'
                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'

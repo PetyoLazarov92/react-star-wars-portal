@@ -8,12 +8,13 @@ This README describes the project's real, current state. See
 [`AGENTS.md`](AGENTS.md) for full architecture, coding, and security conventions,
 [`docs/development-plan.md`](docs/development-plan.md) for the Phase 1 roadmap that shipped
 `1.0.0`, and [`docs/phase-2-development-plan.md`](docs/phase-2-development-plan.md) for the
-UI/UX and structure pass currently in progress.
+follow-up UI/UX and structure pass that shipped `1.9.0`.
 
 ## Current status
 
-Version `1.0.0`'s full planned feature set (see `docs/development-plan.md`) is complete and stable,
-and a follow-up UI/UX pass is now in progress on top of it. `/` has a working, client-side
+Version `1.0.0`'s full planned feature set (see `docs/development-plan.md`) shipped first; a
+follow-up UI/UX and structure pass (see `docs/phase-2-development-plan.md`) is now complete on top
+of it as of `1.9.0`. `/` has a working, client-side
 validated login form (with a show/hide toggle on the password field) that, on success, records a
 lightweight demo session (just the submitted username, in `sessionStorage`, never the password) and
 navigates to `/table`, which shows real, paginated SWAPI character data (name, mass, height, hair
@@ -48,9 +49,12 @@ and Terms and Conditions (`/about`, `/privacy`, `/terms`), sharing one typograph
 visual system; the Privacy Policy and Terms describe this app's actual behavior (no backend, no
 real accounts, no cookies or tracking) rather than generic boilerplate. All pages, the header, the
 footer, and the offline modal hold up at mobile, tablet, and desktop widths without page-level
-horizontal overflow, with interactive controls sized for comfortable touch targets. An automated
-`axe-core` scan reports zero violations (in both themes), and the table and the offline modal's
-keyboard focus handling have both been verified by hand. A Vitest + React Testing Library suite
+horizontal overflow, with interactive controls sized for comfortable touch targets. Every
+interactive control (buttons, links, nav items) shares one deliberate focus-visible outline and
+hover transition (`shared/focusRing.ts`), and a three-tier shadow scale gives the sticky header, the
+modal, and toasts a consistent sense of elevation. An automated `axe-core` scan reports zero
+violations (in both themes), and the table and the offline modal's keyboard focus handling have
+both been verified by hand. A Vitest + React Testing Library suite
 covers the login validation boundaries, the `localStorage` cache helper (TTL expiry and corrupted
 or invalid data), the `?page=` parsing helper, the demo session and toast systems, and a smoke test
 of the login form's enable/disable behavior. See `docs/development-plan.md` for the full
@@ -142,6 +146,7 @@ src/
       UnitToggle.tsx                        # generic 2-option segmented control (height, mass)
       Pagination.tsx                          # Previous/Next controls, disabled at the first/last page
   shared/
+    focusRing.ts    # INTERACTIVE_CLASS_NAME: the app-wide focus-visible + hover-transition style
     api/
       httpClient.ts    # fetch wrapper: AbortSignal support, typed ApiError, returns unknown
     cache/
@@ -184,4 +189,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.8.0`.
+batching several steps under one release; the current version is `1.9.0`.

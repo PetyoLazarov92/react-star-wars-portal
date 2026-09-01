@@ -2,10 +2,10 @@ import { NavLink } from 'react-router-dom'
 import Greeting from '../features/auth/Greeting'
 import { useSession } from '../features/auth/useSession'
 import ThemeToggle from '../shared/components/ThemeToggle'
+import { INTERACTIVE_CLASS_NAME } from '../shared/focusRing'
 import { ROUTES } from './routes'
 
-const navItemClassName =
-  'flex min-h-11 items-center gap-1.5 rounded px-2 font-medium text-slate-700 hover:text-slate-900 aria-[current=page]:text-slate-900 dark:text-slate-300 dark:hover:text-white dark:aria-[current=page]:text-white sm:px-3'
+const navItemClassName = `flex min-h-11 items-center gap-1.5 rounded px-2 font-medium text-slate-700 hover:text-slate-900 aria-[current=page]:text-slate-900 dark:text-slate-300 dark:hover:text-white dark:aria-[current=page]:text-white sm:px-3 ${INTERACTIVE_CLASS_NAME}`
 
 function PeopleIcon() {
   return (
@@ -48,12 +48,12 @@ function Header() {
   const { session, logout } = useSession()
 
   return (
-    <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+    <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-4 py-2 sm:px-6">
         <NavLink
           to={ROUTES.login}
           end
-          className="shrink-0 text-base font-semibold tracking-tight whitespace-nowrap sm:text-lg"
+          className={`shrink-0 rounded text-base font-semibold tracking-tight whitespace-nowrap sm:text-lg ${INTERACTIVE_CLASS_NAME}`}
         >
           Star Wars Portal
         </NavLink>

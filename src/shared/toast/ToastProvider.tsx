@@ -1,4 +1,5 @@
 import { useCallback, useState, type ReactNode } from 'react'
+import { INTERACTIVE_CLASS_NAME } from '../focusRing'
 import { ToastContext, type ToastMessage, type ToastVariant } from './toastContext'
 
 const TOAST_DURATION_MS = 5000
@@ -27,7 +28,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
         type="button"
         onClick={() => onDismiss(toast.id)}
         aria-label="Dismiss notification"
-        className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded text-lg leading-none opacity-60 hover:opacity-100"
+        className={`flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded text-lg leading-none opacity-60 hover:opacity-100 ${INTERACTIVE_CLASS_NAME}`}
       >
         &times;
       </button>
