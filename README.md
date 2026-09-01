@@ -18,7 +18,10 @@ validated login form (with a show/hide toggle on the password field) that, on su
 lightweight demo session (just the submitted username, in `sessionStorage`, never the password) and
 navigates to `/table`, which shows real, paginated SWAPI character data (name, mass, height, hair
 color, skin color) with Previous/Next controls, a loading state, and a generic error message on
-failure. `/table` itself redirects a visitor with no session back to `/` (`src/app/ProtectedRoute
+failure. Mass and height each have a small unit toggle above the table (kilograms/pounds,
+centimeters/meters): switching units updates the column headers and every cell immediately, purely
+client-side, with no new network request, since the original API value and unit are the source of
+truth throughout. `/table` itself redirects a visitor with no session back to `/` (`src/app/ProtectedRoute
 .tsx`), with a toast notification explaining why: a navigation guard through the intended
 login-first flow, not a security boundary, since there's no server and the character data isn't
 actually protected. The current page lives in the
@@ -132,8 +135,12 @@ src/
       pageParam.test.ts          # tests for valid, missing, and malformed page values
       usePeople.ts                # fetches the given SWAPI page (cache-first), loading/success/error
                                   # state, error state carries a stale cached fallback when one exists
-      PeopleTable.tsx               # presentational: renders a PeopleState prop
-      Pagination.tsx                  # Previous/Next controls, disabled at the first/last page
+      PeopleTable.tsx               # presentational: renders a PeopleState prop, owns unit state
+      PeopleTable.test.tsx            # default cm/kg display, switching to m/lb updates the table
+      units.ts                          # formatHeight/formatMass: client-side unit conversion
+      units.test.ts                       # comma-formatted, non-numeric, and unit-switch cases
+      UnitToggle.tsx                        # generic 2-option segmented control (height, mass)
+      Pagination.tsx                          # Previous/Next controls, disabled at the first/last page
   shared/
     api/
       httpClient.ts    # fetch wrapper: AbortSignal support, typed ApiError, returns unknown
@@ -177,4 +184,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.7.0`.
+batching several steps under one release; the current version is `1.8.0`.

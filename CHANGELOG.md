@@ -12,6 +12,23 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-09-01
+
+### Added
+
+- Unit conversion for the people table: `features/people/units.ts` (`formatHeight`/`formatMass`),
+  parsing SWAPI's centimeter/kilogram string values (handling a comma, e.g. `"1,358"`, and
+  non-numeric values like `"unknown"`/`"n/a"`, which are shown as-is) and formatting them for
+  display in the selected unit. `features/people/UnitToggle.tsx` (a small, generic segmented
+  control, the same visual pattern as `ThemeToggle`) lets a visitor switch height between
+  centimeters and meters and mass between kilograms and pounds; `PeopleTable.tsx` renders one of
+  each above the table and updates the `Mass (<unit>)` / `Height (<unit>)` column headers and
+  every cell immediately, entirely client-side, with no new network request. The original API
+  value and unit remain the single source of truth; switching units only changes how the
+  already-fetched data is displayed.
+- `features/people/units.test.ts` and `PeopleTable.test.tsx` (the default cm/kg display, switching
+  to m/lb updates both the headers and the cell values).
+
 ## [1.7.0] - 2026-09-01
 
 ### Added
@@ -247,7 +264,8 @@ rather than batching several steps under one release.
   messages, aligned with the Semantic Versioning policy. AI tools suggest commit messages only;
   commits are made manually.
 
-[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.7.0...HEAD
+[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.4.0...v1.5.0

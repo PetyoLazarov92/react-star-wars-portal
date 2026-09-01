@@ -379,18 +379,38 @@ console errors anywhere.
 
 ### Step 8: Unit conversion for height and mass
 
-**Status:** Planned
+**Status:** Done (shipped as `1.8.0`)
 
 **What:** Per the SWAPI docs, `height` is centimeters and `mass` is kilograms, both returned as
 strings (already noted in Phase 1 Step 3's decision, since either can be `"unknown"` or contain a
-comma). A simple unit selector (e.g., cm/m for height, kg/lb for mass) converts the already-fetched
-values client-side for display only; the source value and unit from the API response remain the
-single source of truth, and switching units never triggers a new fetch. Non-numeric values
-(`"unknown"`, `"n/a"`) are displayed as-is rather than run through a conversion.
+comma). `features/people/units.ts` (`formatHeight`/`formatMass`) parses that raw string (stripping
+commas) and formats it for a given unit; a value that doesn't parse as a finite number (`"unknown"`,
+`"n/a"`, empty) is returned as-is rather than run through a conversion. `features/people/
+UnitToggle.tsx` is a small, generic two-option segmented control (the same visual pattern as
+`shared/components/ThemeToggle.tsx`, parameterized so the table's two uses, height and mass, don't
+each hand-roll the same markup). `PeopleTable.tsx` holds the selected `HeightUnit`/`MassUnit` as its
+own local state (so it survives switching pages, since `PeopleTable` doesn't unmount between page
+changes), renders both toggles above the table, and both the `Mass (<unit>)` / `Height (<unit>)`
+column headers and every cell update immediately, client-side, with no new network request: the
+original API value and unit remain the single source of truth throughout.
 
 **Why now:** Matches the original plan's ordering: it's independent of every other step in this
 phase and was explicitly requested last, once the rest of the table's surrounding chrome (header,
 theme, toasts) is in place.
+
+**Changes:** `src/features/people/units.ts` (new), `units.test.ts` (new), `UnitToggle.tsx` (new),
+`PeopleTable.tsx` (rewritten: local `heightUnit`/`massUnit` state, the two toggles rendered above
+the table, headers and cells driven by the formatters), `PeopleTable.test.tsx` (new: default
+cm/kg display, switching to m/lb updates headers and cell values).
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (71 tests,
+14 new), and `npm run build` all pass. Verified against the real dev server (a session written
+directly to `sessionStorage` to get past `ProtectedRoute`) in headless Chrome, against the real
+SWAPI response: default headers read "Mass (kg)"/"Height (cm)" with Luke Skywalker showing `77`/
+`172`; clicking `m` and `lb` updates the headers to "Mass (lb)"/"Height (m)" and every cell (Luke
+Skywalker to `169.8`/`1.72`) with the Network domain confirming zero new requests to the SWAPI host
+were made by the switch; no horizontal overflow at 360px with both toggles visible; no console
+errors.
 
 ---
 
