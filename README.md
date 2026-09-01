@@ -14,23 +14,28 @@ UI/UX and structure pass currently in progress.
 
 Version `1.0.0`'s full planned feature set (see `docs/development-plan.md`) is complete and stable,
 and a follow-up UI/UX pass is now in progress on top of it. `/` has a working, client-side
-validated login form (with a show/hide toggle on the password field) that navigates to `/table` on
-success, and `/table` shows real, paginated
-SWAPI character data (name, mass, height, hair color, skin color) with Previous/Next controls, a
-loading state, and a generic error message on failure. The current page lives in the `?page=` URL
-search param, so reloading, sharing a link, and browser back/forward all keep working. Each
-fetched page is cached in `localStorage` for five minutes, so revisiting it loads instantly
-without a network request; if a fresh fetch fails, the last cached data for that page (even past
-its five-minute TTL) is shown below the error message instead of a blank failure, with pagination
-still available. Losing the connection anywhere in the app shows an accessible, dismissible
-offline modal that reappears the next time the connection drops. Every page is wrapped in a shared
-app shell (`src/app/Layout.tsx`): a sticky header with the site name, a Login link, and a
-light/dark/system theme control, and a footer with a copyright notice whose year updates on its
-own. The theme control is a three-way segmented switch (light, dark, or follow the OS preference,
-the default until a choice is made), persisting the choice in `localStorage` and, in system mode,
-reacting live to an OS-level theme change with no reload needed. All pages, the header, the
-footer, and the offline modal hold up at mobile, tablet, and desktop widths without page-level
-horizontal overflow, with interactive controls sized for comfortable touch targets. An automated
+validated login form (with a show/hide toggle on the password field) that, on success, records a
+lightweight demo session (just the submitted username, in `sessionStorage`, never the password) and
+navigates to `/table`, which shows real, paginated SWAPI character data (name, mass, height, hair
+color, skin color) with Previous/Next controls, a loading state, and a generic error message on
+failure. The current page lives in the `?page=` URL search param, so reloading, sharing a link, and
+browser back/forward all keep working. Each fetched page is cached in `localStorage` for five
+minutes, so revisiting it loads instantly without a network request; if a fresh fetch fails, the
+last cached data for that page (even past its five-minute TTL) is shown below the error message
+instead of a blank failure, with pagination still available. Losing the connection anywhere in the
+app shows an accessible, dismissible offline modal that reappears the next time the connection
+drops. Every page is wrapped in a shared app shell (`src/app/Layout.tsx`): a sticky header with the
+site name, a light/dark/system theme control, and session-aware navigation (a `Login` link when
+logged out; a greeting, a `People` link to `/table`, and a `Log out` action when logged in, the
+latter two shown icon-only below the `sm` breakpoint to keep the header from overflowing on narrow
+screens), and a footer with a copyright notice whose year updates on its own. This demo session is
+explicitly not real authentication: it's a client-side personalization and navigation convenience,
+with no server, no credential check, and no persistent account behind it. The theme control is a
+three-way segmented switch (light, dark, or follow the OS preference, the default until a choice is
+made), persisting the choice in `localStorage` and, in system mode, reacting live to an OS-level
+theme change with no reload needed. All pages, the header, the footer, and the offline modal hold
+up at mobile, tablet, and desktop widths without page-level horizontal overflow, with interactive
+controls sized for comfortable touch targets. An automated
 `axe-core` scan reports
 zero violations (in both themes), and the table and the offline modal's keyboard focus handling
 have both been verified by hand. A Vitest + React Testing Library suite covers the login
@@ -85,7 +90,7 @@ src/
     routes.ts      # named route path constants
     router.tsx     # <Routes>/<Route> definitions, nested under Layout
     Layout.tsx     # app shell: Header, <Outlet /> for the current route, Footer
-    Header.tsx     # sticky app bar: site name, Login link, ThemeToggle
+    Header.tsx     # sticky app bar: site name, Login/session-aware nav, ThemeToggle
     Footer.tsx     # copyright notice with an auto-updating year
     OfflineModal.tsx  # offline-specific modal, shown app-wide via useOnlineStatus
   pages/
@@ -94,10 +99,17 @@ src/
     NotFoundPage.tsx
   features/
     auth/
-      loginSchema.ts     # Zod schema for username/password validation
+      loginSchema.ts     # Zod schema for username/password validation, username character allowlist
       loginSchema.test.ts  # boundary tests for the schema
-      LoginForm.tsx        # React Hook Form + zodResolver, navigates to /table on success
-      LoginForm.test.tsx     # smoke test of the submit button's enable/disable behavior
+      LoginForm.tsx        # React Hook Form + zodResolver; records a session, navigates to /table
+      LoginForm.test.tsx     # submit button enable/disable, password toggle, session recording
+      session.ts               # sessionStorage-backed demo session, Zod-validated on read
+      session.test.ts            # round-trip, corrupted/invalid/tampered data all treated as a miss
+      sessionContext.ts            # createContext() call and its type (not a component)
+      SessionProvider.tsx            # session state + login()/logout(), wraps AppRouter in App.tsx
+      useSession.ts                    # consumes SessionContext
+      Greeting.tsx                       # renders "Hi, <username>!" in the header when logged in
+      Greeting.test.tsx                    # a hostile username renders as inert text, never markup
     people/
       people.schema.ts     # Zod schemas for the SWAPI person and paginated list response
       people.types.ts        # Person and PeopleResponse types, inferred from the schemas
@@ -144,4 +156,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.3.0`.
+batching several steps under one release; the current version is `1.4.0`.

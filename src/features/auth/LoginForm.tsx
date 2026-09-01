@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../app/routes'
 import { loginSchema, type LoginFormValues } from './loginSchema'
+import { useSession } from './useSession'
 
 const inputClassName =
   'min-h-11 rounded border border-slate-300 px-3 py-2.5 text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-slate-400 dark:focus:ring-slate-500'
@@ -49,6 +50,7 @@ function EyeSlashIcon() {
 
 function LoginForm() {
   const navigate = useNavigate()
+  const { login } = useSession()
   const [showPassword, setShowPassword] = useState(false)
   const {
     register,
@@ -60,7 +62,8 @@ function LoginForm() {
     defaultValues: { username: '', password: '' },
   })
 
-  const onSubmit = (): void => {
+  const onSubmit = (data: LoginFormValues): void => {
+    login(data.username)
     void navigate(ROUTES.table)
   }
 

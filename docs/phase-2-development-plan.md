@@ -172,43 +172,75 @@ doesn't overlap the icon in dark mode; no console errors.
 
 ### Step 4: Login session state, greeting, People link, and input hardening
 
-**Status:** Planned
+**Status:** Done (shipped as `1.4.0`)
 
-**What:** On a valid login submit, `LoginForm` records the submitted username (never the password)
-as a lightweight, client-side "session," and the app reacts to it in two visible ways: a greeting
-("Hi, `<username>`") and a `People` link to `/table` appear in the header in place of the `Login`
-link, alongside a way to end the session (a `Log out` action). Because this state is read by
+**What:** On a valid login submit, `LoginForm` calls `login(username)` (never the password) from a
+new `features/auth/useSession.ts` hook, and the app reacts to it in the header: a logged-out
+visitor still sees `Login`; a logged-in visitor sees a greeting (`features/auth/Greeting.tsx`, "Hi,
+`<username>`!"), a `People` link to `/table`, and a `Log out` action, in place of `Login`. The
+session is held in a small React Context: `features/auth/sessionContext.ts` (the `createContext`
+call and its `SessionContextValue` type, a plain non-component file so it isn't subject to
+`react-refresh/only-export-components`), `features/auth/SessionProvider.tsx` (the component,
+default-exported, wraps `<AppRouter />` in `App.tsx`), and `features/auth/useSession.ts` (the
+consuming hook, throws if used outside the provider). This is because the session is read by
 several components that aren't in an ancestor/descendant relationship with each other (the header's
-nav, the greeting itself, and Step 5's route guard), it's held in a small React Context
-(`SessionProvider`/`useSession`, built on `useState`, no new dependency) rather than prop-drilled or
-duplicated, the same "more than one independent reader, one non-ancestor writer" justification the
-project's rule-of-three principle already allows for. The session value itself (just `{ username
-}`) is kept in `sessionStorage`, not `localStorage`: it should not outlive the browser tab, since
-that better matches what it actually is (a demo display convenience for this visit, not a
-persistent account), and is read back through a small Zod schema, consistent with every other
-trust-boundary read in this codebase.
+nav, the greeting, and Step 5's future route guard) and written from one that isn't their ancestor
+either (`LoginForm`), the same "more than one independent reader, one non-ancestor writer"
+justification `AGENTS.md`'s dependency rules now name explicitly. The session value itself (just
+`{ username }`) is kept in `features/auth/session.ts`'s `sessionStorage` (not `localStorage`), read
+back through a Zod schema, consistent with every other trust-boundary read in this codebase.
 
-Because the username is now rendered back into the UI (the greeting) for the first time, this step
-also hardens `loginSchema.ts`'s `username` field with a character allowlist (letters, digits,
-spaces, hyphens, underscores, and periods only), rejecting anything containing `<`, `>`, quotes, or
-other HTML-special characters before it's ever accepted, in addition to (not instead of) React's
-existing automatic escaping of all rendered text. A regression test renders the greeting with a
-value containing `<img src=x onerror=...>`-style input and asserts it appears as inert text, never
-executed, to make the existing "no `dangerouslySetInnerHTML`, ever" rule concrete for this new
-surface.
+Because the username is now rendered back into the UI (the greeting) for the first time,
+`loginSchema.ts`'s `username` field also gained a character allowlist (letters, digits, spaces,
+hyphens, underscores, and periods only), rejecting anything containing `<`, `>`, quotes, or other
+HTML-special characters before it's ever accepted, in addition to (not instead of) React's existing
+automatic escaping of all rendered text; `session.ts`'s schema reuses the same `usernameSchema`, so
+a tampered `sessionStorage` entry is held to the same rule, not just "some string." A new
+`Greeting.test.tsx` renders the greeting directly with a value containing `<img src=x
+onerror=...>`-style input and asserts it appears as inert text, never executed, to make the
+existing "no `dangerouslySetInnerHTML`, ever" rule concrete for this new surface.
 
 **Why now:** The greeting and the `People` link both need "was the login form just submitted
 successfully" to exist as real state, which doesn't exist anywhere in the app yet; this step
-introduces it once, and Step 5 (protected routes) reuses it rather than inventing a second
+introduces it once, and Step 5 (protected routes) will reuse it rather than inventing a second
 mechanism.
 
-**Decision needed before implementation:** This step requires an amendment to a specific line in
-`AGENTS.md` ("never imply a logged-in/session state that doesn't exist"), written when no session
-of any kind existed. The amendment keeps every substantive protection that line was written for
-(still no real credential check, no password storage, no backend, no persistent account) while
-being accurate about the fact that a lightweight, explicitly-labeled demo session is now a real,
-if trivial, part of the app. This was applied as part of landing this step; see the `AGENTS.md`
-diff in that commit for the exact wording.
+**Changes:** `src/features/auth/loginSchema.ts` (`usernameSchema` extracted, character allowlist
+added), `loginSchema.test.ts` (allowlist accept/reject cases), `src/features/auth/session.ts`
+(new), `session.test.ts` (new), `src/features/auth/sessionContext.ts` (new),
+`src/features/auth/SessionProvider.tsx` (new), `src/features/auth/useSession.ts` (new),
+`src/features/auth/Greeting.tsx` (new), `Greeting.test.tsx` (new), `src/App.tsx` (wraps
+`<AppRouter />` in `SessionProvider`), `src/features/auth/LoginForm.tsx` (calls `login(data
+.username)` on valid submit; `LoginForm.test.tsx` renders through `SessionProvider` now and gained
+a test asserting the session is recorded), `src/app/Header.tsx` (conditional nav, a `PeopleIcon` and
+`LogOutIcon` added for the icon-only mobile rendering described below).
+
+**Decision applied:** `AGENTS.md`'s "What this project is" and "Security principles" sections were
+amended (ahead of this step, when this step was first added to the plan) to describe the session
+accurately: still no real credential check, no password storage, no backend, no persistent
+account, but a real, if intentionally lightweight and tab-scoped, demo session now exists for UI
+personalization and navigation, never as a security
+boundary.
+
+**Decision found during validation:** the first pass showed `People` and `Log out` as full text
+labels, which overflowed the header at 360px (measured: the header's content wanted 389px against a
+360px viewport). Rather than shrinking touch targets or the brand text to claw back the difference,
+both became icon-first: a `PeopleIcon` (a simple 2x2 grid) and the existing-shape `LogOutIcon` (the
+conventional "arrow into a door" glyph), each with their label visible only at the `sm` breakpoint
+and up (`hidden sm:inline`) and an `aria-label` on the `Log out` button so its accessible name
+doesn't depend on the visible text. This matches the same "hide it below `sm`, keep it at `sm` and
+up" treatment already used for the greeting, rather than introducing a new responsive pattern.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (48 tests,
+20 new), and `npm run build` all pass. Verified against the real dev server in headless Chrome
+(DevTools protocol): logged out, the header shows only `Login`; filling and submitting the login
+form navigates to `/table` and writes `{"username":"validUser"}` to `sessionStorage`; the header
+immediately reflects it (greeting, `People`, `Log out`) without a reload, since `SessionProvider`'s
+state update re-renders the header directly; clicking `Log out` clears `sessionStorage` and reverts
+the header to `Login`; no horizontal overflow at 360px, 768px, or 1280px in the logged-in state
+(360px required the icon-first fix described above); no console errors. `Greeting.test.tsx` and
+`session.test.ts` both pass, confirming the rendering layer and the storage-read layer are each
+independently safe against a hostile or tampered username.
 
 ---
 

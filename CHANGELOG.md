@@ -12,6 +12,39 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-01
+
+### Added
+
+- Lightweight demo login session: on a valid login submit, `features/auth/LoginForm.tsx` now
+  records the submitted username via a new `features/auth/SessionProvider.tsx`
+  (`SessionContext`/`useSession`, a small React Context), held only in `sessionStorage` (not
+  `localStorage`, so it doesn't outlive the tab) and read back through a Zod schema, same as every
+  other trust-boundary read in this project. The header (`src/app/Header.tsx`) now reflects it: a
+  logged-out visitor still sees `Login`; a logged-in visitor sees a greeting
+  (`features/auth/Greeting.tsx`, "Hi, `<username>`!", hidden below the `sm` breakpoint to keep the
+  header from overflowing on narrow screens), a `People` link to `/table`, and a `Log out` action,
+  both of the latter icon-only below `sm` and icon-plus-text at `sm` and up.
+- Username input hardening: `features/auth/loginSchema.ts`'s username field gained a character
+  allowlist (letters, digits, spaces, hyphens, underscores, and periods only), rejecting `<`, `>`,
+  quotes, and other HTML-special characters outright. This is defense in depth on top of (not a
+  replacement for) React's automatic escaping of rendered text, since the username is now rendered
+  back into the UI via the header greeting for the first time. A new `Greeting.test.tsx` renders
+  the greeting with a hostile, `<img onerror=...>`-style value and asserts it's shown as inert
+  text, never executed.
+- New `features/auth/session.ts` (`getSession`/`setSession`/`clearSession`) and
+  `features/auth/session.test.ts` (round-trip, corrupted JSON, a stored username that fails the
+  character allowlist, and a missing field, all treated as a miss, mirroring
+  `shared/cache/localStorageCache.ts`'s existing conventions).
+
+### Changed
+
+- `AGENTS.md`'s "What this project is" and "Security principles" sections were amended to
+  describe this session accurately: still no real credential check, no password storage, no
+  backend, and no persistent account, but a real (if intentionally lightweight and
+  tab-scoped) demo session now exists for UI personalization and navigation, not as a security
+  boundary.
+
 ## [1.3.0] - 2026-09-01
 
 ### Added
@@ -163,7 +196,8 @@ rather than batching several steps under one release.
   messages, aligned with the Semantic Versioning policy. AI tools suggest commit messages only;
   commits are made manually.
 
-[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.3.0...HEAD
+[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.0.0...v1.1.0
