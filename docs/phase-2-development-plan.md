@@ -271,22 +271,64 @@ the table; a visitor with a session written directly to `sessionStorage` (bypass
 simulating an already-logged-in visit) navigating to `/table` sees the real table content
 ("Star Wars People"); no console errors in either case.
 
+**Follow-up:** Step 6 later added a toast notification when this redirect fires, so it isn't
+silent; see Step 6 for that change and a StrictMode-related bug it surfaced in `ProtectedRoute`.
+
 ---
 
 ### Step 6: Toast notification system
 
-**Status:** Planned
+**Status:** Done (shipped as `1.6.0`)
 
-**What:** A small, dependency-free toast system: a `ToastProvider`/`useToast()` pair (same
-Context justification as Step 4's session: multiple independent components need to trigger a
-toast, and there's exactly one place, near the root, that renders the visible stack), rendering
-dismissible, auto-expiring toast messages in a fixed corner region, with `role="status"` /
-`aria-live="polite"` (or `role="alert"` for error-severity toasts) so they're announced accessibly,
-and readable in both themes.
+**What:** A small, dependency-free toast system in `src/shared/toast/`: `toastContext.ts` (the
+`createContext` call and its types, not a component, so it isn't subject to
+`react-refresh/only-export-components`), `ToastProvider.tsx` (holds the toast list in state, wraps
+`<AppRouter />`/`<OfflineModal />` in `App.tsx`, and renders the one visible stack directly, since
+that stack is tightly coupled to the state driving it), and `useToast.ts` (the consuming hook,
+`{ showToast(message, variant?) }`). Toasts auto-dismiss after five seconds (`TOAST_DURATION_MS`)
+or on a manual close, stack `fixed` at the bottom-center on narrow screens and bottom-right from
+`sm` up (each toast `pointer-events-auto` inside an otherwise `pointer-events-none` region so the
+stack never blocks clicks elsewhere), and use `role="alert"` for the `error` variant, `role
+="status"` for `info`/`success` (each role's implicit `aria-live` is enough, no separate
+`aria-live` attribute needed). Three variants (`info`, `success`, `error`) get distinct sky/emerald
+/red colors in both themes.
+
+`src/app/ProtectedRoute.tsx` (Step 5) now calls `showToast('Please log in to access that page.')`
+when it redirects, per the request that named this specific pairing, so the redirect doesn't
+happen silently.
 
 **Why now:** Matches the original plan's ordering; also gives Steps 7 and 8 a place to surface
 non-blocking feedback (e.g., a static page's content loading, or a unit-conversion action) if that
-turns out to be useful, without inventing a second notification mechanism later.
+turns out to be useful, without inventing a second notification mechanism later. Wiring it into
+`ProtectedRoute` immediately (rather than only building the generic system) was requested
+alongside this step, and having Step 5 already in place meant it was a small, self-contained
+addition rather than a reason to reorder the plan.
+
+**Changes:** `src/shared/toast/toastContext.ts` (new), `ToastProvider.tsx` (new),
+`ToastProvider.test.tsx` (new), `useToast.ts` (new), `src/App.tsx` (wraps `<AppRouter />` in
+`ToastProvider`), `src/app/ProtectedRoute.tsx` (calls `showToast` on redirect),
+`ProtectedRoute.test.tsx` (toast-shown / toast-not-shown cases, plus the StrictMode regression test
+below).
+
+**Bug found and fixed during validation:** the first pass showed the redirect toast twice in
+`npm run dev`. Cause: `ProtectedRoute`'s `useEffect` calling `showToast` was double-invoked by React
+StrictMode's development-only mount/cleanup/remount cycle (main.tsx wraps the whole app in
+`<StrictMode>`), producing two toasts for one redirect. The natural-looking fix, an effect cleanup
+that dismisses the toast, was rejected: `ProtectedRoute` unmounts for real almost immediately after
+the redirect (the matched route changes away from `/table`), so that cleanup would dismiss the
+toast right after showing it, in production as well as development, not just cancel StrictMode's
+extra invocation. Fixed with a `useRef` guard instead (React's documented escape hatch for an
+effect whose side effect must not double-fire but also must not be undone on the component's real
+unmount). `ProtectedRoute.test.tsx` gained a test that renders under `<StrictMode>` explicitly and
+asserts exactly one toast appears, to catch a regression here.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (57 tests,
+9 new), and `npm run build` all pass. Verified against the real dev server (`npm run dev`, so
+StrictMode is active, the same environment the bug above only reproduced in) in headless Chrome:
+navigating to `/table` while logged out shows exactly one toast reading "Please log in to access
+that page." at `/`; no horizontal overflow at 360px with the toast visible; clicking its close
+button removes it from the DOM; screenshots confirm readable contrast in dark mode at both 360px
+(bottom-center) and 1280px (bottom-right); no console errors.
 
 ---
 

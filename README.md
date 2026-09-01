@@ -19,15 +19,18 @@ lightweight demo session (just the submitted username, in `sessionStorage`, neve
 navigates to `/table`, which shows real, paginated SWAPI character data (name, mass, height, hair
 color, skin color) with Previous/Next controls, a loading state, and a generic error message on
 failure. `/table` itself redirects a visitor with no session back to `/` (`src/app/ProtectedRoute
-.tsx`): a navigation guard through the intended login-first flow, not a security boundary, since
-there's no server and the character data isn't actually protected. The current page lives in the
+.tsx`), with a toast notification explaining why: a navigation guard through the intended
+login-first flow, not a security boundary, since there's no server and the character data isn't
+actually protected. The current page lives in the
 `?page=` URL search param, so reloading, sharing a link, and browser back/forward all keep working
 for a logged-in visitor. Each fetched page is cached in `localStorage` for five
 minutes, so revisiting it loads instantly without a network request; if a fresh fetch fails, the
 last cached data for that page (even past its five-minute TTL) is shown below the error message
 instead of a blank failure, with pagination still available. Losing the connection anywhere in the
 app shows an accessible, dismissible offline modal that reappears the next time the connection
-drops. Every page is wrapped in a shared app shell (`src/app/Layout.tsx`): a sticky header with the
+drops. A small toast notification system (`src/shared/toast/`) shows dismissible, auto-expiring
+messages (five seconds, or a manual close) in the bottom corner, used today for the protected-route
+redirect above. Every page is wrapped in a shared app shell (`src/app/Layout.tsx`): a sticky header with the
 site name, a light/dark/system theme control, and session-aware navigation (a `Login` link when
 logged out; a greeting, a `People` link to `/table`, and a `Log out` action when logged in, the
 latter two shown icon-only below the `sm` breakpoint to keep the header from overflowing on narrow
@@ -137,6 +140,11 @@ src/
     components/
       Modal.tsx    # generic accessible dialog built on the native <dialog> element
       ThemeToggle.tsx    # light/dark toggle button, rendered once from app/Header.tsx
+    toast/
+      toastContext.ts    # createContext() call and its type (not a component)
+      ToastProvider.tsx    # toast state + showToast(); renders the one visible stack
+      ToastProvider.test.tsx  # show, auto-dismiss, manual dismiss, role per variant
+      useToast.ts               # consumes ToastContext
   test/
     setup.ts    # Vitest setup: jest-dom matchers, Testing Library cleanup after each test
   App.tsx        # root component, renders the router and the app-wide OfflineModal
@@ -161,4 +169,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.5.0`.
+batching several steps under one release; the current version is `1.6.0`.

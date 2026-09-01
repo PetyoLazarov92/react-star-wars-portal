@@ -12,6 +12,30 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-09-01
+
+### Added
+
+- Toast notification system: `src/shared/toast/` (`toastContext.ts`, `ToastProvider.tsx`,
+  `useToast.ts`), a dependency-free `showToast(message, variant?)` API backed by a small React
+  Context (justified the same way as the demo session: multiple independent callers, one visible
+  stack rendered near the root in `App.tsx`). Toasts auto-dismiss after five seconds or on a
+  manual close, stack bottom-center on narrow screens and bottom-right from `sm` up, and use
+  `role="alert"` for the `error` variant and `role="status"` for `info`/`success` so they're
+  announced accessibly without extra `aria-live` wiring.
+- `src/app/ProtectedRoute.tsx` now shows a toast ("Please log in to access that page.") when it
+  redirects an unauthenticated visitor away from `/table`, so the redirect doesn't happen silently.
+
+### Fixed
+
+- A first pass of the `ProtectedRoute` toast showed twice under React StrictMode (development
+  only): the effect that calls `showToast` was double-invoked by StrictMode's intentional
+  mount/cleanup/remount cycle, producing two stacked toasts for one redirect. Fixed with a
+  `useRef` guard rather than an effect cleanup, since a cleanup that dismissed the toast would
+  also fire on `ProtectedRoute`'s real unmount, which happens almost immediately after the
+  redirect in both development and production, clearing the toast right after showing it. A new
+  test renders under `<StrictMode>` to catch a regression here.
+
 ## [1.5.0] - 2026-09-01
 
 ### Added
@@ -208,7 +232,8 @@ rather than batching several steps under one release.
   messages, aligned with the Semantic Versioning policy. AI tools suggest commit messages only;
   commits are made manually.
 
-[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.5.0...HEAD
+[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.2.0...v1.3.0
