@@ -10,11 +10,9 @@ This README describes the project's real, current state. See
 
 ## Current status
 
-Project foundation, routing, the login form, the data table, pagination, localStorage caching,
-loading/error state polish, offline detection, a responsive styling pass, an accessibility pass,
-light/dark theming, and an initial automated test suite are in place: `/` has a working,
-client-side validated login form that
-navigates to `/table` on success, and `/table` shows real, paginated SWAPI character data (name,
+Version `1.0.0`: the full planned feature set (see `docs/development-plan.md`) is complete and
+stable. `/` has a working, client-side validated login form that navigates to `/table` on success,
+and `/table` shows real, paginated SWAPI character data (name,
 mass, height, hair color, skin color) with Previous/Next controls, a loading state, and a generic
 error message on failure. The current page lives in the `?page=` URL search param, so reloading,
 sharing a link, and browser back/forward all keep working. Each fetched page is cached in
@@ -30,7 +28,7 @@ defaulting to the OS preference and persisting the choice in `localStorage`. An 
 keyboard focus handling have both been verified by hand. A Vitest + React Testing Library suite
 covers the login validation boundaries, the `localStorage` cache helper (TTL expiry and corrupted
 or invalid data), the `?page=` parsing helper, and a smoke test of the login form's enable/disable
-behavior. See `docs/development-plan.md` for what's next.
+behavior. See `docs/development-plan.md` for the full step-by-step history.
 
 ## Tech stack
 
@@ -118,8 +116,8 @@ src/
   index.css      # Tailwind entry
 ```
 
-This will grow feature by feature per the plan in `docs/development-plan.md`, which documents the
-target folder structure and the reasoning behind it.
+This is the full structure built out over the plan in `docs/development-plan.md`, which documents
+the target folder structure and the reasoning behind it, step by step.
 
 ## AI-assisted development
 
@@ -131,5 +129,6 @@ rather than duplicating its content.
 ## Versioning
 
 This project follows [Semantic Versioning](https://semver.org/) and keeps a
-[`CHANGELOG.md`](CHANGELOG.md). It's currently `0.x` (active development); breaking changes can
-happen between minor versions until `1.0.0`.
+[`CHANGELOG.md`](CHANGELOG.md). It reached `1.0.0` once the planned feature set was complete and
+stable; from here, patch releases are fixes, minor releases are backward-compatible feature
+additions, and a major bump is reserved for a breaking change.

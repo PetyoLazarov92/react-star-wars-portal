@@ -3,11 +3,14 @@
 All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
-adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The project is `0.x` during
-active development: patch releases are fixes, minor releases are meaningful feature additions, and
-`1.0.0` lands once the planned feature set (see `docs/development-plan.md`) is complete.
+adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The project reached `1.0.0`
+once the planned feature set (see `docs/development-plan.md`) was complete and stable; from here,
+patch releases are fixes, minor releases are backward-compatible feature additions, and a major
+bump is reserved for a breaking change.
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-09-01
 
 ### Added
 
@@ -75,6 +78,10 @@ active development: patch releases are fixes, minor releases are meaningful feat
   resets `margin: 0` on all elements, which overrode the browser's built-in centering for the
   native `<dialog>` element. Restored with an explicit `m-auto` on `shared/components/Modal.tsx`'s
   `<dialog>`.
+- Leftover Vite scaffold placeholders found during the final cleanup pass: `index.html`'s `<title>`
+  still read the raw package name (`react-star-wars-portal`) instead of a real title, and
+  `public/favicon.svg` was still the default Vite logo. Replaced with `Star Wars Portal` and a
+  small hand-authored star icon respectively.
 
 ## [0.1.0] - 2026-08-31
 
@@ -100,5 +107,6 @@ active development: patch releases are fixes, minor releases are meaningful feat
   messages, aligned with the Semantic Versioning policy. AI tools suggest commit messages only;
   commits are made manually.
 
-[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/releases/tag/v0.1.0

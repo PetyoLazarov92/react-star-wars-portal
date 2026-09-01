@@ -644,15 +644,51 @@ regressions by temporarily changing `loginSchema.ts`'s `PASSWORD_MIN` from 4 to 
 
 ### Step 13: Final cleanup & 1.0 readiness
 
-**Status:** Planned
+**Status:** Done
 
-**What:** Full re-read of `AGENTS.md`, `README.md`, and this plan against what was actually built;
-remove any dead code or leftover placeholders; final lint/format/typecheck/build pass; review the
-`CHANGELOG.md` history and cut a `1.0.0` release if the planned scope is complete and stable.
+**What:** Re-read `AGENTS.md`, `README.md`, and this plan in full against every file actually in
+`src/`, checking each one for dead code, leftover placeholders, and drift from what the docs
+described. The application code itself was already clean (no `TODO`/`FIXME` markers, no stray
+`console.*` or `debugger` calls, nothing unused past what `noUnusedLocals`/`noUnusedParameters`
+already enforce), and every existing file matched what `AGENTS.md` and the plan said it did. Two
+genuine leftovers from the original Vite scaffold, never touched by any prior step, were found and
+fixed:
+
+- `index.html`'s `<title>` still read the raw package name, `react-star-wars-portal`, instead of a
+  real page title. Changed to `Star Wars Portal`, matching the project's actual name in `README.md`.
+- `public/favicon.svg` was still Vite's default logo (a purple "V" mark). Replaced with a small,
+  hand-authored five-point star `<polygon>` (no icon library, consistent with the "no icon
+  libraries" dependency rule), filled amber so it reads clearly in both a light and a dark browser
+  tab bar.
+
+Confirmed the README's "from scratch" setup instructions actually work end to end: `rm -rf
+node_modules && npm ci` (a true clean install from `package-lock.json`, not just `npm install` over
+an already-populated `node_modules`) completed cleanly, and `npm run typecheck`, `npm run lint`,
+`npm run format:check`, `npm test`, and `npm run build` all passed afterward with no changes
+needed. Separately booted the dev server and loaded `/` and `/table` in headless Chrome to confirm
+the corrected `<title>` renders and neither page logs a console error or warning.
+
+Asked the user whether this step should cut the `1.0.0` release, since the plan's own criterion
+("if the planned scope is complete and stable") is now met but a version bump is a real, visible
+decision, not one to make unilaterally. Confirmed yes: bumped `package.json` and
+`package-lock.json` to `1.0.0` via `npm version 1.0.0 --no-git-tag-version` (no git tag or commit
+created, matching the "no AI tool creates git commits" rule), and moved `CHANGELOG.md`'s
+`[Unreleased]` entries under a new `[1.0.0] - 2026-09-01` heading, adding an entry for the
+`index.html`/`favicon.svg` fixes above, with a fresh empty `[Unreleased]` section left at the top
+for whatever comes after `1.0.0`.
 
 **Why now:** Closing step: confirms documentation matches reality before calling the project
 "done" for its initial scope.
 
-**Validation:** Clean checkout, `npm install`, `npm run build` succeeds; `npm run lint`,
-`npm run typecheck`, `npm test` all pass; README setup instructions followed literally, from
-scratch, actually work.
+**Changes:** `index.html` (`<title>`), `public/favicon.svg` (replaced), `package.json` /
+`package-lock.json` (version `0.1.0` -> `1.0.0`), `CHANGELOG.md` (`[1.0.0]` section cut, new empty
+`[Unreleased]` section, versioning-policy paragraph updated to describe post-1.0 semver), `README.md`
+(current-status paragraph, versioning section, and the "this will grow feature by feature" line all
+updated to reflect the plan being complete rather than in progress). No dead code or structural
+drift was found in `AGENTS.md` itself, so it was left unchanged.
+
+**Validation:** A true clean install (`rm -rf node_modules && npm ci`) followed by `npm run
+typecheck`, `npm run lint`, `npm run format:check`, `npm test` (27 tests), and `npm run build` all
+passed. `npm run preview` served the production build and `dist/index.html` was inspected directly
+to confirm the corrected `<title>` made it into the build output. Headless Chrome loaded `/` and
+`/table` against the dev server with no console errors or warnings on either page.
