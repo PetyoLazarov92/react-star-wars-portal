@@ -23,9 +23,16 @@ A responsive React + TypeScript application with two pages:
   (`https://swapi.py4e.com/api/people`), showing name, mass, height, hair color, and skin color.
 
 The login is **not real authentication**. It only validates input format client-side and then
-navigates to `/table`. Never introduce fake session tokens, protected-route guards, or anything
-that implies a real security boundary exists: there isn't one, and pretending otherwise would be
-misleading.
+navigates to `/table`. There is no server, no credential check, and no real account: a valid submit
+(any username/password that satisfies the format rules) starts a lightweight, client-side "demo
+session" (just the submitted username, held in `sessionStorage` so it doesn't outlive the browser
+tab), used only to personalize the UI (a greeting, showing a `People` link instead of `Login`) and
+to redirect a visitor away from `/table` before they've gone through the login form. That redirect
+is a navigation/UX guard, not a security boundary: nothing behind `/table` is actually protected
+(there is no server to enforce it, and the character data itself is public), so never describe it,
+in code, comments, or UI copy, as real authentication, a protected resource, or anything implying a
+security boundary that doesn't exist. Never introduce a fake session token, a password hash, a
+user database, or anything that implies credentials are actually being checked.
 
 ## Guiding principles
 
@@ -86,10 +93,16 @@ integer, defaulting to `1` if malformed) before use.
 - No secrets, API keys, or credentials in client code. The SWAPI endpoint used here is public and
   needs none; if a future integration ever needs one, it must not be hardcoded or committed.
 - The login form is format validation only. Never store the password anywhere (state is fine
-  transiently for the form; don't persist it, log it, or send it anywhere), and never imply a
-  logged-in/session state that doesn't exist.
-- Never use `dangerouslySetInnerHTML` or otherwise render unescaped HTML. All API-derived text goes
-  through normal React children so it's escaped automatically.
+  transiently for the form; don't persist it, log it, or send it anywhere). The demo session
+  described above stores only the submitted username, never the password, and only in
+  `sessionStorage` (read back through a Zod schema, like every other trust-boundary read in this
+  project), never `localStorage`, since it shouldn't outlive the tab.
+- Never use `dangerouslySetInnerHTML` or otherwise render unescaped HTML. All API-derived text and
+  all user-submitted text (including the username, once it's echoed back in a greeting) goes
+  through normal React children so it's escaped automatically. Fields whose value can be rendered
+  back into the UI also get a character allowlist in their Zod schema (e.g. the username's) as
+  defense in depth on top of React's escaping, rejecting HTML-special characters outright rather
+  than relying on escaping alone.
 - Treat both the API response and `localStorage` cache contents as untrusted input: parse and
   validate them (Zod) before rendering or storing further, since `localStorage` can be edited by
   the user or another script on the same origin.
@@ -119,11 +132,11 @@ integer, defaulting to `1` if malformed) before use.
 - Tailwind CSS v4, configured via `@tailwindcss/vite` (CSS-first config in `src/index.css`, no
   `tailwind.config.js` needed unless a future customization genuinely requires one).
 - Mobile-first, responsive utility classes; avoid hardcoded pixel widths that break small screens.
-- Light/dark theme is intentionally **not implemented yet**: it's planned as a later, separate
-  step. To keep that easy to add later, prefer Tailwind utility classes over inline `style`
-  colors, and prefer a small number of reusable primitives (button, input, card, modal) over
-  scattering the same raw color utilities across many files, so a future theme pass has few places
-  to touch.
+- Light, dark, and (planned) system-following themes are implemented via a class-based Tailwind
+  `dark:` variant (see `shared/hooks/useTheme.ts`). Prefer Tailwind utility classes over inline
+  `style` colors, and prefer a small number of reusable primitives (button, input, card, modal)
+  over scattering the same raw color utilities across many files, so theme-related changes stay
+  additive (an extra `dark:` class alongside the existing one) instead of structural.
 
 ## Dependency rules
 
@@ -132,9 +145,13 @@ Allowed (already in the project): `react`, `react-dom`, `react-router-dom`, `rea
 
 Not allowed without an explicit, justified exception: Redux or any other global state library,
 Axios or any other HTTP client, TanStack Query or any other data-fetching/cache library, a UI
-component library, icon libraries, date libraries, CSS-in-JS libraries. The app's scope (two
-pages, one public API, client-side-only "auth") does not need them: native `fetch` + hooks +
-Zod-validated `localStorage` cover it.
+component library, icon libraries, date libraries, CSS-in-JS libraries. The app's scope (a handful
+of pages, one public API, client-side-only "auth") does not need them: native `fetch` + hooks +
+Zod-validated `localStorage`/`sessionStorage` cover it. React's own `createContext`/`useContext`
+are not a "state library" and don't need an exception to use: reach for them only when a piece of
+state genuinely has more than one independent reader that isn't an ancestor of the writer (the
+demo session and the toast queue are the two current examples), never for state a single
+hook/component can own locally.
 
 ## Development workflow
 
@@ -174,15 +191,19 @@ messages; the developer decides when and how to commit.
 
 ## Versioning & documentation
 
-- Semantic Versioning. The project starts at `0.x` while under active development: patch releases
-  for fixes, minor releases for meaningful feature additions, and a jump to `1.0.0` once the
-  planned feature set is complete and stable. Don't bump the version for trivial/internal changes.
-- `package.json` version and `CHANGELOG.md` (Keep a Changelog format) must always agree. Add
-  entries under `Unreleased` as you go and move them under a version heading at release time.
+- Semantic Versioning. The project reached `1.0.0` once its originally planned feature set (Phase
+  1, see `docs/development-plan.md`) was complete and stable; from there, patch releases are fixes,
+  minor releases are backward-compatible feature additions, and a major bump is reserved for a
+  breaking change. Don't bump the version for trivial/internal changes.
+- `package.json` version and `CHANGELOG.md` (Keep a Changelog format) must always agree. During
+  Phase 2 (see `docs/phase-2-development-plan.md`), each completed step gets its own version bump
+  immediately, in the same change as that step, rather than batching several steps under one
+  `Unreleased` heading and releasing later.
 - `README.md` must always reflect the real, current state of the project (structure, features,
   scripts, setup): update it whenever any of those change, not just at milestones.
-- `docs/development-plan.md` is a living roadmap: update the relevant step (status, decisions,
-  anything learned during implementation) as it's completed or changed, rather than leaving it to
-  describe only the original intent.
+- `docs/development-plan.md` (Phase 1, closed) and `docs/phase-2-development-plan.md` (the current
+  phase) are living roadmaps: update the relevant step (status, decisions, anything learned during
+  implementation) as it's completed or changed, rather than leaving it to describe only the
+  original intent.
 - Selected AI conversation exports that captured a real architectural discussion or decision can be
   kept under `docs/chats/` (see the README there); most conversations should not be exported.

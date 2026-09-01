@@ -692,3 +692,10 @@ typecheck`, `npm run lint`, `npm run format:check`, `npm test` (27 tests), and `
 passed. `npm run preview` served the production build and `dist/index.html` was inspected directly
 to confirm the corrected `<title>` made it into the build output. Headless Chrome loaded `/` and
 `/table` against the dev server with no console errors or warnings on either page.
+
+---
+
+This document covers Phase 1 only: the `1.0.0` scope above is complete and closed. A second,
+user-driven UI/UX and structure pass builds on top of it starting at version `1.1.0`; it has its
+own living plan in [`docs/phase-2-development-plan.md`](phase-2-development-plan.md), tracked
+separately so each phase's history stays easy to follow on its own.

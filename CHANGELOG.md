@@ -6,9 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The project reached `1.0.0`
 once the planned feature set (see `docs/development-plan.md`) was complete and stable; from here,
 patch releases are fixes, minor releases are backward-compatible feature additions, and a major
-bump is reserved for a breaking change.
+bump is reserved for a breaking change. Starting with the Phase 2 UI/UX pass (see
+`docs/phase-2-development-plan.md`), each completed step gets its own version bump as it lands,
+rather than batching several steps under one release.
 
 ## [Unreleased]
+
+## [1.1.0] - 2026-09-01
+
+### Added
+
+- App shell: `src/app/Header.tsx` (a sticky top app bar with the site name, a Login nav link, and
+  the theme toggle) and `src/app/Footer.tsx` (a copyright notice whose year is computed from the
+  current date, so it never needs a manual update), composed by a new `src/app/Layout.tsx` and
+  rendered around every route via a nested layout route in `src/app/router.tsx`.
+
+### Changed
+
+- `shared/components/ThemeToggle.tsx` moved from a fixed, floating top-right button into the new
+  header, losing its `fixed` positioning classes accordingly.
+- `LoginPage.tsx`, `TablePage.tsx`, and `NotFoundPage.tsx` no longer render their own full-height
+  `<main>` background/text color classes; those are now set once on `body` in `src/index.css`, and
+  each page's `<main>` grows to fill the space between the header and footer instead
+  (`flex flex-1` in place of `min-h-svh`).
 
 ## [1.0.0] - 2026-09-01
 
@@ -107,6 +127,7 @@ bump is reserved for a breaking change.
   messages, aligned with the Semantic Versioning policy. AI tools suggest commit messages only;
   commits are made manually.
 
-[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/releases/tag/v0.1.0

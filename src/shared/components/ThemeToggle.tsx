@@ -38,8 +38,8 @@ function MoonIcon() {
   )
 }
 
-// Fixed and app-wide, following the same precedent as app/OfflineModal.tsx: theme is a
-// device-level preference, not something specific to one page.
+// Rendered once, from the app shell's header (src/app/Header.tsx): theme is a device-level
+// preference, not something specific to one page.
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'
@@ -49,7 +49,7 @@ function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      className="fixed top-4 right-4 flex min-h-11 min-w-11 items-center justify-center rounded border border-slate-300 bg-white text-slate-700 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-white"
+      className="flex min-h-11 min-w-11 items-center justify-center rounded border border-slate-300 bg-white text-slate-700 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-white"
     >
       {isDark ? <SunIcon /> : <MoonIcon />}
     </button>

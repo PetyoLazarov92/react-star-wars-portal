@@ -2,7 +2,7 @@ import LoginForm from '../features/auth/LoginForm'
 
 function LoginPage() {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-6 bg-white p-6 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+    <main className="flex flex-1 flex-col items-center justify-center gap-6 p-6">
       <div className="text-center">
         <h1 className="text-2xl font-semibold">Login</h1>
         <p className="text-slate-600 dark:text-slate-400">

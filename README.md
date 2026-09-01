@@ -5,30 +5,35 @@ only, no real authentication) that leads to a paginated table of Star Wars chara
 public [SWAPI](https://swapi.py4e.com/api/people).
 
 This README describes the project's real, current state. See
-[`AGENTS.md`](AGENTS.md) for full architecture, coding, and security conventions, and
-[`docs/development-plan.md`](docs/development-plan.md) for the phased roadmap.
+[`AGENTS.md`](AGENTS.md) for full architecture, coding, and security conventions,
+[`docs/development-plan.md`](docs/development-plan.md) for the Phase 1 roadmap that shipped
+`1.0.0`, and [`docs/phase-2-development-plan.md`](docs/phase-2-development-plan.md) for the
+UI/UX and structure pass currently in progress.
 
 ## Current status
 
-Version `1.0.0`: the full planned feature set (see `docs/development-plan.md`) is complete and
-stable. `/` has a working, client-side validated login form that navigates to `/table` on success,
-and `/table` shows real, paginated SWAPI character data (name,
-mass, height, hair color, skin color) with Previous/Next controls, a loading state, and a generic
-error message on failure. The current page lives in the `?page=` URL search param, so reloading,
-sharing a link, and browser back/forward all keep working. Each fetched page is cached in
-`localStorage` for five minutes, so revisiting it loads instantly without a network request; if a
-fresh fetch fails, the last cached data for that page (even past its five-minute TTL) is shown
-below the error message instead of a blank failure, with pagination still available. Losing the
-connection anywhere in the app shows an accessible, dismissible offline modal that reappears the
-next time the connection drops. Both pages, and the offline modal, hold up at mobile, tablet, and
-desktop widths without page-level horizontal overflow, with interactive controls sized for
-comfortable touch targets. A fixed, app-wide toggle switches between a light and a dark theme,
-defaulting to the OS preference and persisting the choice in `localStorage`. An automated
-`axe-core` scan reports zero violations (in both themes), and the table and the offline modal's
-keyboard focus handling have both been verified by hand. A Vitest + React Testing Library suite
-covers the login validation boundaries, the `localStorage` cache helper (TTL expiry and corrupted
-or invalid data), the `?page=` parsing helper, and a smoke test of the login form's enable/disable
-behavior. See `docs/development-plan.md` for the full step-by-step history.
+Version `1.0.0`'s full planned feature set (see `docs/development-plan.md`) is complete and stable,
+and a follow-up UI/UX pass is now in progress on top of it. `/` has a working, client-side
+validated login form that navigates to `/table` on success, and `/table` shows real, paginated
+SWAPI character data (name, mass, height, hair color, skin color) with Previous/Next controls, a
+loading state, and a generic error message on failure. The current page lives in the `?page=` URL
+search param, so reloading, sharing a link, and browser back/forward all keep working. Each
+fetched page is cached in `localStorage` for five minutes, so revisiting it loads instantly
+without a network request; if a fresh fetch fails, the last cached data for that page (even past
+its five-minute TTL) is shown below the error message instead of a blank failure, with pagination
+still available. Losing the connection anywhere in the app shows an accessible, dismissible
+offline modal that reappears the next time the connection drops. Every page is wrapped in a shared
+app shell (`src/app/Layout.tsx`): a sticky header with the site name, a Login link, and a
+light/dark theme toggle, and a footer with a copyright notice whose year updates on its own. The
+theme toggle switches between a light and a dark theme app-wide, defaulting to the OS preference
+and persisting the choice in `localStorage`. All pages, the header, the footer, and the offline
+modal hold up at mobile, tablet, and desktop widths without page-level horizontal overflow, with
+interactive controls sized for comfortable touch targets. An automated `axe-core` scan reports
+zero violations (in both themes), and the table and the offline modal's keyboard focus handling
+have both been verified by hand. A Vitest + React Testing Library suite covers the login
+validation boundaries, the `localStorage` cache helper (TTL expiry and corrupted or invalid data),
+the `?page=` parsing helper, and a smoke test of the login form's enable/disable behavior. See
+`docs/development-plan.md` for the full step-by-step history.
 
 ## Tech stack
 
@@ -75,7 +80,10 @@ npm run dev
 src/
   app/
     routes.ts      # named route path constants
-    router.tsx     # <Routes>/<Route> definitions
+    router.tsx     # <Routes>/<Route> definitions, nested under Layout
+    Layout.tsx     # app shell: Header, <Outlet /> for the current route, Footer
+    Header.tsx     # sticky app bar: site name, Login link, ThemeToggle
+    Footer.tsx     # copyright notice with an auto-updating year
     OfflineModal.tsx  # offline-specific modal, shown app-wide via useOnlineStatus
   pages/
     LoginPage.tsx      # renders the login form
@@ -108,7 +116,7 @@ src/
       useTheme.ts    # light/dark theme, localStorage-persisted, defaults to the OS preference
     components/
       Modal.tsx    # generic accessible dialog built on the native <dialog> element
-      ThemeToggle.tsx    # fixed, app-wide light/dark toggle button
+      ThemeToggle.tsx    # light/dark toggle button, rendered once from app/Header.tsx
   test/
     setup.ts    # Vitest setup: jest-dom matchers, Testing Library cleanup after each test
   App.tsx        # root component, renders the router and the app-wide OfflineModal
@@ -129,6 +137,8 @@ rather than duplicating its content.
 ## Versioning
 
 This project follows [Semantic Versioning](https://semver.org/) and keeps a
-[`CHANGELOG.md`](CHANGELOG.md). It reached `1.0.0` once the planned feature set was complete and
-stable; from here, patch releases are fixes, minor releases are backward-compatible feature
-additions, and a major bump is reserved for a breaking change.
+[`CHANGELOG.md`](CHANGELOG.md). It reached `1.0.0` once its Phase 1 feature set was complete and
+stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
+major bump is reserved for a breaking change. Since Phase 2 (see
+`docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
+batching several steps under one release; the current version is `1.1.0`.
