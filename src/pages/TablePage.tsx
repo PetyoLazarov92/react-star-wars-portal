@@ -1,18 +1,8 @@
 import { useSearchParams } from 'react-router-dom'
-import { z } from 'zod'
 import Pagination from '../features/people/Pagination'
+import { parsePage } from '../features/people/pageParam'
 import PeopleTable from '../features/people/PeopleTable'
 import { usePeople } from '../features/people/usePeople'
-
-const pageParamSchema = z.coerce.number().int().positive()
-
-function parsePage(rawPage: string | null): number {
-  if (rawPage === null) {
-    return 1
-  }
-  const result = pageParamSchema.safeParse(rawPage)
-  return result.success ? result.data : 1
-}
 
 function TablePage() {
   const [searchParams, setSearchParams] = useSearchParams()

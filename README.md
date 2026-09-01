@@ -12,7 +12,8 @@ This README describes the project's real, current state. See
 
 Project foundation, routing, the login form, the data table, pagination, localStorage caching,
 loading/error state polish, offline detection, a responsive styling pass, an accessibility pass,
-and light/dark theming are in place: `/` has a working, client-side validated login form that
+light/dark theming, and an initial automated test suite are in place: `/` has a working,
+client-side validated login form that
 navigates to `/table` on success, and `/table` shows real, paginated SWAPI character data (name,
 mass, height, hair color, skin color) with Previous/Next controls, a loading state, and a generic
 error message on failure. The current page lives in the `?page=` URL search param, so reloading,
@@ -26,8 +27,10 @@ desktop widths without page-level horizontal overflow, with interactive controls
 comfortable touch targets. A fixed, app-wide toggle switches between a light and a dark theme,
 defaulting to the OS preference and persisting the choice in `localStorage`. An automated
 `axe-core` scan reports zero violations (in both themes), and the table and the offline modal's
-keyboard focus handling have both been verified by hand. See `docs/development-plan.md` for what's
-next.
+keyboard focus handling have both been verified by hand. A Vitest + React Testing Library suite
+covers the login validation boundaries, the `localStorage` cache helper (TTL expiry and corrupted
+or invalid data), the `?page=` parsing helper, and a smoke test of the login form's enable/disable
+behavior. See `docs/development-plan.md` for what's next.
 
 ## Tech stack
 
@@ -38,6 +41,8 @@ next.
   validation (including runtime validation of API responses and cached data)
 - [Tailwind CSS](https://tailwindcss.com/) v4
 - Native `fetch` and `localStorage`: no HTTP client or data-fetching library
+- [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/react) for
+  tests
 
 See `AGENTS.md` for why the dependency list is intentionally short.
 
@@ -64,8 +69,7 @@ npm run dev
 | `npm run format`       | Format with Prettier.                  |
 | `npm run format:check` | Check formatting without writing.      |
 | `npm run typecheck`    | Type-check without emitting.           |
-
-A test script will be added once a testing stack is introduced (see the development plan).
+| `npm test`             | Run the Vitest test suite once.        |
 
 ## Project structure
 
@@ -82,26 +86,33 @@ src/
   features/
     auth/
       loginSchema.ts     # Zod schema for username/password validation
+      loginSchema.test.ts  # boundary tests for the schema
       LoginForm.tsx        # React Hook Form + zodResolver, navigates to /table on success
+      LoginForm.test.tsx     # smoke test of the submit button's enable/disable behavior
     people/
       people.schema.ts     # Zod schemas for the SWAPI person and paginated list response
       people.types.ts        # Person and PeopleResponse types, inferred from the schemas
-      usePeople.ts            # fetches the given SWAPI page (cache-first), loading/success/error state,
-                              # error state carries a stale cached fallback when one exists
-      PeopleTable.tsx           # presentational: renders a PeopleState prop
-      Pagination.tsx              # Previous/Next controls, disabled at the first/last page
+      pageParam.ts             # parses and validates the ?page= URL search param
+      pageParam.test.ts          # tests for valid, missing, and malformed page values
+      usePeople.ts                # fetches the given SWAPI page (cache-first), loading/success/error
+                                  # state, error state carries a stale cached fallback when one exists
+      PeopleTable.tsx               # presentational: renders a PeopleState prop
+      Pagination.tsx                  # Previous/Next controls, disabled at the first/last page
   shared/
     api/
       httpClient.ts    # fetch wrapper: AbortSignal support, typed ApiError, returns unknown
     cache/
       localStorageCache.ts    # getCached/setCached/getStale: Zod-validated reads, getCached applies
                               # a TTL, getStale ignores it for fallback use
+      localStorageCache.test.ts  # TTL expiry, corrupted/invalid data handling
     hooks/
       useOnlineStatus.ts    # navigator.onLine, kept in sync via the online/offline events
       useTheme.ts    # light/dark theme, localStorage-persisted, defaults to the OS preference
     components/
       Modal.tsx    # generic accessible dialog built on the native <dialog> element
       ThemeToggle.tsx    # fixed, app-wide light/dark toggle button
+  test/
+    setup.ts    # Vitest setup: jest-dom matchers, Testing Library cleanup after each test
   App.tsx        # root component, renders the router and the app-wide OfflineModal
   main.tsx       # entry point, wraps App in BrowserRouter
   index.css      # Tailwind entry

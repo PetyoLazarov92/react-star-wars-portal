@@ -592,21 +592,53 @@ contrast in dark mode, matching their light-mode layout with no structural shift
 
 ### Step 12: Testing
 
-**Status:** Planned
+**Status:** Done
 
-**What:** Add Vitest + React Testing Library (the natural fit for a Vite project, minimal setup).
-Cover the logic that's actually risky to get wrong: `loginSchema` validation boundaries,
-`localStorageCache` (TTL expiry, corrupted/invalid data handling), the `?page=` parsing helper,
-and a smoke test of `LoginForm`'s enable/disable behavior.
+**What:** Added Vitest 4 and React Testing Library 16 (plus `@testing-library/jest-dom` for
+matchers and `jsdom` as the test environment) as dev dependencies. `vitest.config.ts` configures
+the `@vitejs/plugin-react` plugin, `environment: 'jsdom'`, and `setupFiles: ['./src/test/setup.ts']`;
+`src/test/setup.ts` imports the `jest-dom` matchers and registers Testing Library's `cleanup` in an
+`afterEach`. No global test APIs (`describe`/`it`/`expect`) are enabled; every test file imports
+them explicitly from `'vitest'`, matching the project's explicit-over-ambient conventions. 27 tests
+across four files cover the logic named in the original plan:
+
+- `features/auth/loginSchema.test.ts`: both fields at the 4 and 30 character boundaries (accepted)
+  and just outside them, 3 and 31 characters (rejected), plus a missing field.
+- `shared/cache/localStorageCache.test.ts`: a cache hit within the TTL, a miss for a missing key, a
+  miss once `fetchedAt` is past the TTL, a miss for corrupted (non-JSON) stored data, a miss for
+  JSON that fails the caller's schema, and `getStale` returning that same past-TTL entry that
+  `getCached` correctly refuses.
+- `features/people/pageParam.test.ts`: `null` defaults to `1`, a valid `"2"` parses to `2`, and
+  `"0"`, `"-1"`, `"abc"`, `"1.5"`, and `""` all fall back to `1`.
+- `features/auth/LoginForm.test.tsx`: the submit button starts disabled, becomes enabled once both
+  fields are valid, and stays disabled while a field is too short; assertions on the async
+  (resolver-driven) enable/disable transitions are wrapped in `waitFor` since React Hook Form's
+  `zodResolver` validation resolves as a microtask, not synchronously within the `fireEvent.change`
+  call.
 
 **Why now:** By this point the logic worth testing actually exists and has stabilized; adding a
 test stack earlier would mean testing code that's still being reshaped step to step.
 
-**Changes:** `vitest.config.ts` (or Vite test config block), `*.test.ts(x)` files next to the code
-they cover, `npm test` script.
+**Changes:** `vitest.config.ts` (new), `src/test/setup.ts` (new), `tsconfig.node.json` (added
+`vitest.config.ts` to `include`, alongside `vite.config.ts`), `package.json` (`test` script plus
+the four new dev dependencies), `src/features/people/pageParam.ts` (new, see decision below),
+`src/pages/TablePage.tsx` (updated to import `parsePage` from it), four new `*.test.ts(x)` files
+next to the code they cover.
 
-**Validation:** `npm test` passes; the suite fails meaningfully if a boundary condition (e.g. a
-3- or 31-character password) is broken.
+**Decision:** The plan described `?page=` parsing as an existing "helper," implying it just needed
+exporting from `TablePage.tsx` for a test to import it. That ran into
+`eslint-plugin-react-refresh`'s `react-refresh/only-export-components` rule: a component file may
+only export components, so a component file exporting a plain function fails lint (Fast Refresh
+can't reliably hot-reload a file that mixes the two). Rather than disabling the rule, `parsePage`
+and its backing Zod schema were moved into a new `src/features/people/pageParam.ts`, the same
+pattern the project already uses for `loginSchema.ts` living apart from `LoginForm.tsx`. This also
+reads as a better home for it architecturally: it's `people`/pagination-specific parsing logic, not
+page-shell JSX, so it belongs in `features/people/` rather than `src/pages/`.
+
+**Validation:** `npm test` (27 tests across 4 files) passes; `npm run typecheck`, `npm run lint`,
+`npm run format:check`, and `npm run build` all pass. Confirmed the boundary tests actually catch
+regressions by temporarily changing `loginSchema.ts`'s `PASSWORD_MIN` from 4 to 5 and re-running
+`npm test`: the 4-characters-is-valid test failed as expected, then the change was reverted.
 
 ---
 

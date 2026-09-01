@@ -50,6 +50,13 @@ active development: patch releases are fixes, minor releases are meaningful feat
   `App.tsx` (`shared/components/ThemeToggle.tsx`). `dark:` classes were added across every
   existing page and component (`LoginPage`, `TablePage`, `NotFoundPage`, `LoginForm`,
   `PeopleTable`, `Pagination`, `Modal`, `OfflineModal`) with no structural changes.
+- Testing: Vitest + React Testing Library (`vitest.config.ts`, `src/test/setup.ts`), a `npm test`
+  script, and an initial test suite covering `loginSchema`'s validation boundaries (4 and 30
+  character limits on both fields), `localStorageCache`'s `getCached`/`getStale` (TTL expiry,
+  corrupted JSON, and schema-invalid data all treated as a miss), the new
+  `features/people/pageParam.ts` `?page=` parsing helper (extracted out of `TablePage.tsx` so it
+  can be tested directly and to satisfy the `react-refresh/only-export-components` lint rule), and
+  a smoke test of `LoginForm`'s submit button enable/disable behavior.
 
 ### Changed
 
