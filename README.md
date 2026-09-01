@@ -24,11 +24,13 @@ its five-minute TTL) is shown below the error message instead of a blank failure
 still available. Losing the connection anywhere in the app shows an accessible, dismissible
 offline modal that reappears the next time the connection drops. Every page is wrapped in a shared
 app shell (`src/app/Layout.tsx`): a sticky header with the site name, a Login link, and a
-light/dark theme toggle, and a footer with a copyright notice whose year updates on its own. The
-theme toggle switches between a light and a dark theme app-wide, defaulting to the OS preference
-and persisting the choice in `localStorage`. All pages, the header, the footer, and the offline
-modal hold up at mobile, tablet, and desktop widths without page-level horizontal overflow, with
-interactive controls sized for comfortable touch targets. An automated `axe-core` scan reports
+light/dark/system theme control, and a footer with a copyright notice whose year updates on its
+own. The theme control is a three-way segmented switch (light, dark, or follow the OS preference,
+the default until a choice is made), persisting the choice in `localStorage` and, in system mode,
+reacting live to an OS-level theme change with no reload needed. All pages, the header, the
+footer, and the offline modal hold up at mobile, tablet, and desktop widths without page-level
+horizontal overflow, with interactive controls sized for comfortable touch targets. An automated
+`axe-core` scan reports
 zero violations (in both themes), and the table and the offline modal's keyboard focus handling
 have both been verified by hand. A Vitest + React Testing Library suite covers the login
 validation boundaries, the `localStorage` cache helper (TTL expiry and corrupted or invalid data),
@@ -141,4 +143,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.1.0`.
+batching several steps under one release; the current version is `1.2.0`.

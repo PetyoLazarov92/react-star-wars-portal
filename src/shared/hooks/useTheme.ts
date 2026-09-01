@@ -1,56 +1,67 @@
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
 
-export type Theme = 'light' | 'dark'
+export type ThemePreference = 'light' | 'dark' | 'system'
+export type ResolvedTheme = 'light' | 'dark'
 
 const THEME_STORAGE_KEY = 'theme'
-const themeSchema = z.enum(['light', 'dark'])
+const themePreferenceSchema = z.enum(['light', 'dark', 'system'])
+const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)'
 
-function getStoredTheme(): Theme | null {
+function getStoredPreference(): ThemePreference {
   try {
     const raw = localStorage.getItem(THEME_STORAGE_KEY)
     if (raw === null) {
-      return null
+      return 'system'
     }
-    const result = themeSchema.safeParse(raw)
-    return result.success ? result.data : null
+    const result = themePreferenceSchema.safeParse(raw)
+    return result.success ? result.data : 'system'
   } catch {
-    return null
+    return 'system'
   }
 }
 
-function getPreferredTheme(): Theme {
-  const stored = getStoredTheme()
-  if (stored) {
-    return stored
-  }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+function getSystemTheme(): ResolvedTheme {
+  return window.matchMedia(DARK_MEDIA_QUERY).matches ? 'dark' : 'light'
 }
 
 interface UseThemeResult {
-  theme: Theme
-  toggleTheme: () => void
+  preference: ThemePreference
+  resolvedTheme: ResolvedTheme
+  setPreference: (preference: ThemePreference) => void
 }
 
-// Reads the initial theme once (a stored preference, falling back to the OS setting) and applies
-// it as a side effect on every change: toggling the `dark` class the CSS `dark:` variant matches
-// against, and persisting the choice so it survives a reload. No context/provider: this is the
-// only place in the app that needs to change the theme, everywhere else just uses `dark:` classes.
+// Three-way preference (light/dark/system), distinct from the resolved theme actually applied:
+// 'system' means "keep following the OS setting live," not just "read it once at mount," so a
+// matchMedia change event updates resolvedTheme immediately without a page reload. No
+// context/provider: this is the only place in the app that needs to change the theme, everywhere
+// else just uses `dark:` classes.
 export function useTheme(): UseThemeResult {
-  const [theme, setTheme] = useState<Theme>(() => getPreferredTheme())
+  const [preference, setPreference] = useState<ThemePreference>(() => getStoredPreference())
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(() => getSystemTheme())
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
+    const media = window.matchMedia(DARK_MEDIA_QUERY)
+    const handleChange = (event: MediaQueryListEvent): void => {
+      setSystemTheme(event.matches ? 'dark' : 'light')
+    }
+    media.addEventListener('change', handleChange)
+    return () => media.removeEventListener('change', handleChange)
+  }, [])
+
+  const resolvedTheme: ResolvedTheme = preference === 'system' ? systemTheme : preference
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', resolvedTheme === 'dark')
+  }, [resolvedTheme])
+
+  useEffect(() => {
     try {
-      localStorage.setItem(THEME_STORAGE_KEY, theme)
+      localStorage.setItem(THEME_STORAGE_KEY, preference)
     } catch {
       // Best-effort: a full or disabled store shouldn't break theming for the current session.
     }
-  }, [theme])
+  }, [preference])
 
-  const toggleTheme = (): void => {
-    setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
-  }
-
-  return { theme, toggleTheme }
+  return { preference, resolvedTheme, setPreference }
 }

@@ -69,22 +69,47 @@ sync; no console errors on any page, width, or theme combination tested.
 
 ### Step 2: Theme system: explicit system/auto option
 
-**Status:** Planned
+**Status:** Done (shipped as `1.2.0`)
 
-**What:** Extend `shared/hooks/useTheme.ts` from a two-way (`light`/`dark`) preference to a
-three-way one (`light`/`dark`/`system`), where `system` means "follow `prefers-color-scheme` live,"
-not just "read it once at mount" (today's fallback behavior when nothing is stored). The header's
-`ThemeToggle` becomes a small three-way control (or a cycle button through the three states) rather
-than a single sun/moon toggle, with an accessible label reflecting all three states.
+**What:** `shared/hooks/useTheme.ts` now models the theme as a `ThemePreference`
+(`'light' | 'dark' | 'system'`) plus a separately-tracked `ResolvedTheme` (`'light' | 'dark'`, the
+value actually applied to the `dark` class). `system` (now the default when nothing is stored in
+`localStorage`, replacing the old "resolve the OS preference once at mount and freeze it" fallback)
+subscribes to `window.matchMedia('(prefers-color-scheme: dark)')`'s `change` event in a `useEffect`,
+so switching the OS theme while the tab is open updates `resolvedTheme` immediately, with no reload
+needed. `shared/components/ThemeToggle.tsx` became a three-button segmented control
+(`role="group" aria-label="Theme"`, each option a `button` with `aria-pressed` and an icon-only
+`aria-label`: "Light theme," "Dark theme," "Match system theme") instead of a single cycling
+sun/moon button, so all three states stay visible and directly selectable rather than hidden behind
+a cycle.
 
 **Why now:** The user's original request named auto-detect as a nice-to-have alongside light/dark;
-doing it right after the header lands (rather than folding it into Step 1) keeps that step focused
-on layout, and this one focused purely on the theme model.
+doing it right after the header landed (rather than folding it into Step 1) kept that step focused
+on layout and this one focused purely on the theme model.
 
-**Design notes to confirm during implementation:** `window.matchMedia('(prefers-color-scheme:
-dark)')` supports a `change` event listener, so `system` mode can react live to an OS-level theme
-change without a page reload, unlike today's read-once behavior. The stored `localStorage` value
-needs a third valid entry (`'system'`) in the Zod enum. No new dependency.
+**Changes:** `shared/hooks/useTheme.ts` (rewritten: `ThemePreference`/`ResolvedTheme` types, live
+`matchMedia` subscription, `'system'` added to the persisted Zod enum and as the no-stored-value
+default), `shared/components/ThemeToggle.tsx` (rewritten as a segmented control, added a
+`SystemIcon`), `src/app/Header.tsx` (brand link and nav spacing made responsive: `text-base
+sm:text-lg` and tighter gaps/padding below the `sm` breakpoint, to keep the wider three-option
+control from wrapping the header onto two lines at 360px).
+
+**Decision:** A native `<select>` (light/dark/system as options) was considered first as the
+"boring, obvious" choice for a three-way value, but rejected in favor of a segmented control: the
+project's stated goal for this phase is a modern, Material-Design-ish look, and a styled
+three-button group keeps every option visible and one tap away, versus hiding two of the three
+behind a native dropdown's default closed state. It's still a plain, dependency-free
+`<button>`/`role="group"` pattern, not a new abstraction.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (27 tests),
+and `npm run build` all pass. Verified against the real dev server in headless Chrome (DevTools
+protocol): with `localStorage` cleared and the OS preference emulated as light, the control opens
+on "System" pressed and no `dark` class; clicking "Dark" sets the `dark` class and persists
+`theme: 'dark'`; clicking "System" reverts to following the OS setting; with preference back on
+`system`, emulating a live OS change to dark (via `Emulation.setEmulatedMedia`, no page reload)
+correctly flips the `dark` class through the new `matchMedia` `change` listener; no horizontal
+overflow at 360px, 768px, or 1280px (the header brand/spacing fix was needed for 360px, where the
+wider control had pushed the brand text onto two lines before the fix); no console errors.
 
 ---
 

@@ -1,4 +1,5 @@
-import { useTheme } from '../hooks/useTheme'
+import type { ReactElement } from 'react'
+import { useTheme, type ThemePreference } from '../hooks/useTheme'
 
 function SunIcon() {
   return (
@@ -38,21 +39,60 @@ function MoonIcon() {
   )
 }
 
-// Rendered once, from the app shell's header (src/app/Header.tsx): theme is a device-level
-// preference, not something specific to one page.
+function SystemIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      className="h-5 w-5"
+    >
+      <rect x="3" y="4.5" width="18" height="12" rx="1.5" />
+      <path strokeLinecap="round" d="M8 20h8M12 16.5v3.5" />
+    </svg>
+  )
+}
+
+const OPTIONS: { value: ThemePreference; label: string; Icon: () => ReactElement }[] = [
+  { value: 'light', label: 'Light theme', Icon: SunIcon },
+  { value: 'dark', label: 'Dark theme', Icon: MoonIcon },
+  { value: 'system', label: 'Match system theme', Icon: SystemIcon },
+]
+
+// A three-way segmented control (rather than a single cycling button) so all theme options stay
+// discoverable at a glance, following the same precedent as app/Header.tsx: rendered once, from
+// the app shell's header, since theme is a device-level preference, not something page-specific.
 function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme()
-  const isDark = theme === 'dark'
+  const { preference, setPreference } = useTheme()
 
   return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
-      className="flex min-h-11 min-w-11 items-center justify-center rounded border border-slate-300 bg-white text-slate-700 hover:text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-white"
+    <div
+      role="group"
+      aria-label="Theme"
+      className="flex items-center gap-0.5 rounded border border-slate-300 p-0.5 dark:border-slate-600"
     >
-      {isDark ? <SunIcon /> : <MoonIcon />}
-    </button>
+      {OPTIONS.map(({ value, label, Icon }) => {
+        const isActive = preference === value
+        return (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={isActive}
+            aria-label={label}
+            onClick={() => setPreference(value)}
+            className={`flex min-h-10 min-w-10 items-center justify-center rounded ${
+              isActive
+                ? 'bg-slate-200 text-slate-900 dark:bg-slate-700 dark:text-white'
+                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+            }`}
+          >
+            <Icon />
+          </button>
+        )
+      })}
+    </div>
   )
 }
 

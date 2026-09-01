@@ -12,6 +12,25 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-01
+
+### Added
+
+- Theme system upgrade: `shared/hooks/useTheme.ts` now models the theme as a three-way
+  `ThemePreference` (`light`/`dark`/`system`) plus a separately-tracked `ResolvedTheme`, instead of
+  a two-way `light`/`dark` value. `system` (now the default when nothing is stored, replacing the
+  previous "read the OS preference once at mount" fallback) subscribes to
+  `matchMedia('(prefers-color-scheme: dark)')`'s `change` event, so it reacts live to an OS-level
+  theme change without a page reload. `shared/components/ThemeToggle.tsx` is now a three-button
+  segmented control (`role="group"`, each option a `button` with `aria-pressed`) instead of a
+  single sun/moon toggle.
+
+### Changed
+
+- `src/app/Header.tsx`: the brand link shrinks from `text-lg` to `text-base` below the `sm`
+  breakpoint (and drops to a tighter nav gap/padding) to keep the wider three-option theme control
+  from wrapping the header onto two lines at 360px.
+
 ## [1.1.0] - 2026-09-01
 
 ### Added
@@ -127,7 +146,8 @@ rather than batching several steps under one release.
   messages, aligned with the Semantic Versioning policy. AI tools suggest commit messages only;
   commits are made manually.
 
-[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.1.0...HEAD
+[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/releases/tag/v0.1.0
