@@ -3,6 +3,7 @@ import LoginPage from '../pages/LoginPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import TablePage from '../pages/TablePage'
 import Layout from './Layout'
+import ProtectedRoute from './ProtectedRoute'
 import { ROUTES } from './routes'
 
 function AppRouter() {
@@ -10,7 +11,14 @@ function AppRouter() {
     <Routes>
       <Route element={<Layout />}>
         <Route path={ROUTES.login} element={<LoginPage />} />
-        <Route path={ROUTES.table} element={<TablePage />} />
+        <Route
+          path={ROUTES.table}
+          element={
+            <ProtectedRoute>
+              <TablePage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

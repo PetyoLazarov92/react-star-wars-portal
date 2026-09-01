@@ -246,17 +246,30 @@ independently safe against a hostile or tampered username.
 
 ### Step 5: Protected routes
 
-**Status:** Planned
+**Status:** Done (shipped as `1.5.0`)
 
 **What:** `/table` redirects to `/` for a visitor with no session (Step 4's `useSession`), via a
 small `src/app/ProtectedRoute.tsx` wrapping element used in `router.tsx`, using React Router's
-`<Navigate replace>` rather than an imperative redirect. This is explicitly a UX/navigation guard
-guiding a visitor through the intended login-first flow, not a security boundary: there is no
-server, no data behind `/table` that a direct fetch couldn't already reach, and nothing here should
-ever be described as "protecting" the character data itself.
+`<Navigate to={ROUTES.login} replace>` rather than an imperative redirect (`replace` so the
+redirect doesn't leave a `/table` entry a visitor could land back on with the browser Back button).
+This is explicitly a UX/navigation guard guiding a visitor through the intended login-first flow,
+not a security boundary: there is no server, no data behind `/table` that a direct fetch couldn't
+already reach, and nothing here should ever be described as "protecting" the character data itself.
 
 **Why now:** Directly depends on Step 4's session state existing; doing it any earlier would mean
 inventing a throwaway "is logged in" flag that Step 4 would then have to replace.
+
+**Changes:** `src/app/ProtectedRoute.tsx` (new), `src/app/router.tsx` (`/table`'s route element
+wrapped in `ProtectedRoute`), `src/app/ProtectedRoute.test.tsx` (new: redirects with no session,
+passes through with one).
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (50 tests,
+2 new), and `npm run build` all pass. Verified against the real dev server in headless Chrome
+(DevTools protocol, `sessionStorage`/`localStorage` cleared first): a logged-out visitor navigating
+directly to `/table` (and separately to `/table?page=2`) ends up at `/` showing the login form, not
+the table; a visitor with a session written directly to `sessionStorage` (bypassing the login form,
+simulating an already-logged-in visit) navigating to `/table` sees the real table content
+("Star Wars People"); no console errors in either case.
 
 ---
 

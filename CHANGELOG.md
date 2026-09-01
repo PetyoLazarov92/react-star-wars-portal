@@ -12,6 +12,18 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-01
+
+### Added
+
+- Protected routes: a new `src/app/ProtectedRoute.tsx` wraps `/table`'s route element in
+  `src/app/router.tsx`, redirecting (`<Navigate to={ROUTES.login} replace>`) a visitor with no
+  demo session (from Step 4's `useSession`) back to `/`, whether they land on `/table` directly, via
+  a bookmark, or with a `?page=` search param. This is a navigation/UX guard, not a security
+  boundary: there is no server, and the character data behind `/table` isn't actually protected.
+  `ProtectedRoute.test.tsx` covers both the redirect (no session) and the pass-through (a session
+  exists) cases.
+
 ## [1.4.0] - 2026-09-01
 
 ### Added
@@ -196,7 +208,8 @@ rather than batching several steps under one release.
   messages, aligned with the Semantic Versioning policy. AI tools suggest commit messages only;
   commits are made manually.
 
-[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.4.0...HEAD
+[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.1.0...v1.2.0

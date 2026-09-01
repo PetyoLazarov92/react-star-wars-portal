@@ -18,8 +18,11 @@ validated login form (with a show/hide toggle on the password field) that, on su
 lightweight demo session (just the submitted username, in `sessionStorage`, never the password) and
 navigates to `/table`, which shows real, paginated SWAPI character data (name, mass, height, hair
 color, skin color) with Previous/Next controls, a loading state, and a generic error message on
-failure. The current page lives in the `?page=` URL search param, so reloading, sharing a link, and
-browser back/forward all keep working. Each fetched page is cached in `localStorage` for five
+failure. `/table` itself redirects a visitor with no session back to `/` (`src/app/ProtectedRoute
+.tsx`): a navigation guard through the intended login-first flow, not a security boundary, since
+there's no server and the character data isn't actually protected. The current page lives in the
+`?page=` URL search param, so reloading, sharing a link, and browser back/forward all keep working
+for a logged-in visitor. Each fetched page is cached in `localStorage` for five
 minutes, so revisiting it loads instantly without a network request; if a fresh fetch fails, the
 last cached data for that page (even past its five-minute TTL) is shown below the error message
 instead of a blank failure, with pagination still available. Losing the connection anywhere in the
@@ -92,6 +95,8 @@ src/
     Layout.tsx     # app shell: Header, <Outlet /> for the current route, Footer
     Header.tsx     # sticky app bar: site name, Login/session-aware nav, ThemeToggle
     Footer.tsx     # copyright notice with an auto-updating year
+    ProtectedRoute.tsx  # redirects to / when there is no demo session (a nav guard, not security)
+    ProtectedRoute.test.tsx  # redirect vs. pass-through cases
     OfflineModal.tsx  # offline-specific modal, shown app-wide via useOnlineStatus
   pages/
     LoginPage.tsx      # renders the login form
@@ -156,4 +161,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.4.0`.
+batching several steps under one release; the current version is `1.5.0`.
