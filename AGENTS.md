@@ -132,11 +132,22 @@ integer, defaulting to `1` if malformed) before use.
 - Tailwind CSS v4, configured via `@tailwindcss/vite` (CSS-first config in `src/index.css`, no
   `tailwind.config.js` needed unless a future customization genuinely requires one).
 - Mobile-first, responsive utility classes; avoid hardcoded pixel widths that break small screens.
-- Light, dark, and (planned) system-following themes are implemented via a class-based Tailwind
-  `dark:` variant (see `shared/hooks/useTheme.ts`). Prefer Tailwind utility classes over inline
-  `style` colors, and prefer a small number of reusable primitives (button, input, card, modal)
-  over scattering the same raw color utilities across many files, so theme-related changes stay
+- Light, dark, and system-following themes are implemented via a class-based Tailwind `dark:`
+  variant (see `shared/hooks/useTheme.ts`). Prefer Tailwind utility classes over inline `style`
+  colors, and prefer a small number of reusable primitives (button, input, card, modal) over
+  scattering the same raw color utilities across many files, so theme-related changes stay
   additive (an extra `dark:` class alongside the existing one) instead of structural.
+- The visual target is a clean, modern, Material Design-inspired look: a consistent elevation
+  (shadow) scale, a consistent border-radius and spacing rhythm, a defined type scale, clear
+  hover/`focus-visible`/active/disabled states on every interactive element, and short, purposeful
+  motion on state changes, without adopting a Material component library. Express all of it with
+  Tailwind utilities and, where a small set of reused values earns it, Tailwind v4's `@theme`
+  tokens in `src/index.css`.
+- No Sass or other CSS preprocessor. Tailwind v4 runs on Lightning CSS, which already provides
+  native CSS nesting, custom properties, and `calc()`-based math, the specific problems a
+  preprocessor historically solved, so one is not justified here. If a concrete styling need ever
+  comes up that Tailwind genuinely cannot express cleanly, name that specific need and revisit the
+  decision explicitly rather than adding a preprocessor preemptively.
 
 ## Dependency rules
 

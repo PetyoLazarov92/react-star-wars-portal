@@ -3,9 +3,9 @@
 This is a living document, same as [`docs/development-plan.md`](development-plan.md) (Phase 1,
 closed at `1.0.0`). It picks up from there: a user-driven pass to add a proper header and footer,
 a fuller theme system, a lightweight login/session experience, protected routes, toast
-notifications, static content pages, and a client-side unit selector for the people table. Update
-the relevant step's status and notes as work happens, don't leave it describing only the original
-intent.
+notifications, static content pages, a client-side unit selector for the people table, and an
+overall modern Material Design-inspired visual polish across the whole app. Update the relevant
+step's status and notes as work happens, don't leave it describing only the original intent.
 
 Status legend: `Done` · `In progress` · `Planned`
 
@@ -16,6 +16,30 @@ its own version bump as soon as it ships, sized by ordinary SemVer rules: a step
 backward-compatible feature is a minor bump, a pure fix is a patch bump, and a breaking change
 would be a major bump (none are expected in this phase). `package.json` / `package-lock.json` and
 `CHANGELOG.md` are updated in the same change as the step itself, not batched for later.
+
+## Design direction
+
+Every step in this phase, not just the final polish pass (Step 9), aims at the same visual target:
+a clean, modern application that reads as Material Design-inspired without adopting a full
+Material component library. Concretely: a consistent elevation model (a small, reused shadow scale
+for the header, cards, and the modal, instead of an ad hoc `box-shadow` value per component), a
+consistent border-radius and spacing scale, a defined type scale (already mostly in place via
+Tailwind's default scale), clear and consistent interactive states (hover, `focus-visible`, active,
+disabled) on every button and link, and subtle, purposeful motion (short transitions on
+hover/press/open-close, never anything decorative or slow enough to feel sluggish). None of that
+requires a new component library: Tailwind's utility classes and its `@theme` tokens (for a small,
+named set of shadow/radius/duration values reused across components) cover it.
+
+**Decision: no Sass.** Revisited here since the look-and-feel goal above raised the question again.
+Tailwind CSS v4 is built on Lightning CSS, which already provides native CSS nesting, custom
+properties (already how Tailwind v4's own `@theme` tokens work), and `calc()`-based math: the
+specific problems Sass historically solved, none of which are missing here. Introducing Sass would
+add a build step and a second styling convention (`.scss` partials alongside Tailwind utility
+classes) without solving a problem Tailwind can't already handle, which is exactly the kind of
+dependency `AGENTS.md` says needs a concrete technical justification, not just a preference for
+organization. If a specific, concrete styling need comes up during implementation that Tailwind
+genuinely can't express cleanly, it will be raised at that point, named specifically, rather than
+added preemptively.
 
 ## Steps
 
@@ -236,14 +260,18 @@ theme, toasts) is in place.
 
 ---
 
-### Step 9: Final UI/UX and accessibility polish
+### Step 9: Material Design polish and accessibility pass
 
 **Status:** Planned
 
-**What:** A whole-app pass once every feature above is in place: spacing, typography, button and
-link consistency, form and table styling, notification appearance, responsive behavior, color and
-border consistency, and a repeat of the Phase 1 axe-core/keyboard-navigation audit against the
-larger surface area this phase adds (header, footer, toasts, static pages, session UI).
+**What:** A whole-app pass once every feature above is in place, measured against the "Design
+direction" section above: a consistent elevation scale applied to the header, the modal, and any
+card-like surfaces; a consistent border-radius and spacing rhythm across buttons, inputs, the
+table, and toasts; consistent hover/`focus-visible`/active/disabled states on every interactive
+element; short, purposeful transitions where they help (opening the modal, showing a toast,
+hovering a button) and none where they don't; and a repeat of the Phase 1 axe-core/keyboard
+navigation audit against the larger surface area this phase adds (header, footer, toasts, static
+pages, session UI).
 
 **Why now:** Same reasoning as Phase 1's equivalent closing steps: polishing against a moving
-target means redoing it, so this runs last.
+target means redoing it, so this runs last, once every other step's UI actually exists to polish.
