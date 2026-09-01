@@ -139,17 +139,34 @@ wider control had pushed the brand text onto two lines before the fix); no conso
 
 ### Step 3: Password visibility toggle
 
-**Status:** Planned
+**Status:** Done (shipped as `1.3.0`)
 
-**What:** A small show/hide button next to the password field in `features/auth/LoginForm.tsx`,
-toggling the input's `type` between `password` and `text`. Built the same way as the existing
-`SunIcon`/`MoonIcon` pattern in `ThemeToggle.tsx`: a plain inline SVG (eye / eye-with-slash), a
-`type="button"` element (so it never submits the form), a real `aria-label` describing the action
-("Show password" / "Hide password"), and a 44x44px touch target consistent with the rest of the
-app's interactive controls.
+**What:** A show/hide button inside the password field in `features/auth/LoginForm.tsx`, wrapping
+the input in a `relative` container and absolutely positioning the button over its right edge (with
+`pr-11` added to the input so typed text never runs under it). Toggles the input's `type` between
+`password` and `text` via a `showPassword` boolean in local component state. Built the same way as
+the existing `SunIcon`/`MoonIcon` pattern in `ThemeToggle.tsx`: plain inline SVGs (`EyeIcon` /
+`EyeSlashIcon`), a `type="button"` element (so it never submits the form), a real `aria-label`
+describing the action ("Show password" / "Hide password"), and a 44x44px touch target consistent
+with the rest of the app's interactive controls.
 
 **Why now:** Small, fully self-contained change to the login form with no dependency on any other
 step in this phase; a natural companion to the login form work the phase is already touching.
+
+**Changes:** `src/features/auth/LoginForm.tsx` (`EyeIcon`/`EyeSlashIcon`, `showPassword` state, the
+password field wrapped in a `relative` container with the toggle button), `LoginForm.test.tsx` (new
+test for the toggle; the two existing tests' `getByLabelText(/password/i)` calls were changed to an
+exact `getByLabelText('Password')`, since the new toggle button's `aria-label="Show password"` also
+matched the old, looser regex, making the query ambiguous).
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (28 tests,
+one new), and `npm run build` all pass. Verified against the real dev server in headless Chrome
+(DevTools protocol): typing into the password field and reading its `.value` back confirms text
+entry works before any toggle; the toggle button measures 44x46px; clicking it (a real
+`Input.dispatchMouseEvent` click) flips the input's `type` from `password` to `text` and the
+button's `aria-label` from "Show password" to "Hide password," with the typed value preserved
+across the switch; no horizontal overflow at 360px, and a screenshot confirms the revealed text
+doesn't overlap the icon in dark mode; no console errors.
 
 ---
 

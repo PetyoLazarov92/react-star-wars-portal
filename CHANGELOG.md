@@ -12,6 +12,23 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-01
+
+### Added
+
+- Password visibility toggle: `features/auth/LoginForm.tsx` gained a show/hide button inside the
+  password field (an inline eye / eye-slash SVG, `type="button"` so it never submits the form, a
+  44x44px touch target, and an `aria-label` of "Show password"/"Hide password" that flips with the
+  field's `type` between `password` and `text`). A new `LoginForm.test.tsx` case exercises the
+  toggle.
+
+### Fixed
+
+- `LoginForm.test.tsx`'s two existing tests queried the password field with
+  `getByLabelText(/password/i)`, which became ambiguous once the new toggle button's
+  `aria-label="Show password"` also matched that pattern; changed to an exact
+  `getByLabelText('Password')` match.
+
 ## [1.2.0] - 2026-09-01
 
 ### Added
@@ -146,7 +163,8 @@ rather than batching several steps under one release.
   messages, aligned with the Semantic Versioning policy. AI tools suggest commit messages only;
   commits are made manually.
 
-[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.2.0...HEAD
+[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v0.1.0...v1.0.0

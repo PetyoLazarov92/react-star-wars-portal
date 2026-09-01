@@ -14,7 +14,8 @@ UI/UX and structure pass currently in progress.
 
 Version `1.0.0`'s full planned feature set (see `docs/development-plan.md`) is complete and stable,
 and a follow-up UI/UX pass is now in progress on top of it. `/` has a working, client-side
-validated login form that navigates to `/table` on success, and `/table` shows real, paginated
+validated login form (with a show/hide toggle on the password field) that navigates to `/table` on
+success, and `/table` shows real, paginated
 SWAPI character data (name, mass, height, hair color, skin color) with Previous/Next controls, a
 loading state, and a generic error message on failure. The current page lives in the `?page=` URL
 search param, so reloading, sharing a link, and browser back/forward all keep working. Each
@@ -143,4 +144,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.2.0`.
+batching several steps under one release; the current version is `1.3.0`.
