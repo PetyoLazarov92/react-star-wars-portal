@@ -16,11 +16,14 @@ across every AI tool working in this repository.
 
 ## What this project is
 
-A responsive React + TypeScript application with two pages:
+A responsive React + TypeScript application built around two core pages, plus a few static content
+pages:
 
 - `/`: a login form (username + password) with client-side validation only.
 - `/table`: a paginated table of Star Wars characters from the public SWAPI
   (`https://swapi.py4e.com/api/people`), showing name, mass, height, hair color, and skin color.
+- `/about`, `/privacy`, `/terms`: static content pages, sharing
+  `shared/components/StaticPage.tsx` for consistent typography, linked from the footer.
 
 The login is **not real authentication**. It only validates input format client-side and then
 navigates to `/table`. There is no server, no credential check, and no real account: a valid submit

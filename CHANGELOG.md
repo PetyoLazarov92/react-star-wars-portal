@@ -12,6 +12,21 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-09-01
+
+### Added
+
+- Static content pages: `src/pages/AboutPage.tsx`, `PrivacyPolicyPage.tsx`, and `TermsPage.tsx`
+  (routed at `/about`, `/privacy`, and `/terms`), all sharing a new
+  `src/shared/components/StaticPage.tsx` layout (consistent heading, paragraph, list, code, and
+  link styling via Tailwind descendant selectors, reused by exactly these three pages). The
+  Privacy Policy and Terms content describes the app's actual behavior plainly (no backend, no
+  real accounts, no cookies or tracking, what `sessionStorage`/`localStorage` are used for) rather
+  than generic boilerplate that would misrepresent it; the About page credits the public SWAPI and
+  links to the project's GitHub repository.
+- Footer navigation: `src/app/Footer.tsx` gained a `nav aria-label="Footer"` linking to all three
+  new pages, above the existing copyright line.
+
 ## [1.6.0] - 2026-09-01
 
 ### Added
@@ -232,7 +247,8 @@ rather than batching several steps under one release.
   messages, aligned with the Semantic Versioning policy. AI tools suggest commit messages only;
   commits are made manually.
 
-[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.6.0...HEAD
+[unreleased]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/PetyoLazarov92/react-star-wars-portal/compare/v1.3.0...v1.4.0

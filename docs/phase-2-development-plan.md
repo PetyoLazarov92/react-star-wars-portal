@@ -334,16 +334,46 @@ button removes it from the DOM; screenshots confirm readable contrast in dark mo
 
 ### Step 7: Static pages and footer navigation
 
-**Status:** Planned
+**Status:** Done (shipped as `1.7.0`)
 
-**What:** `PrivacyPolicyPage`, `TermsPage`, and `AboutPage` under `src/pages/`, each real,
-project-appropriate written content (not placeholder text), sharing the same typography, spacing,
-and layout primitives as the rest of the app (rendered inside the same `Layout`). The footer gains
-a small nav linking to all three, alongside the existing copyright line.
+**What:** `AboutPage.tsx`, `PrivacyPolicyPage.tsx`, and `TermsPage.tsx` under `src/pages/`, routed
+at `/about`, `/privacy`, and `/terms` (added to `ROUTES` and `router.tsx`, public, not wrapped in
+`ProtectedRoute`), each with real, project-appropriate written content, not placeholder text.
+All three share a new `src/shared/components/StaticPage.tsx` layout: the page itself writes plain
+semantic HTML (`h2`, `p`, `ul`/`li`, `a`, `code`), and `StaticPage` applies consistent typography
+and spacing to it via Tailwind descendant selectors (e.g. `[&_h2]:mt-6 [&_h2]:text-lg
+[&_h2]:font-semibold`), so the three pages read as one visual system without each repeating the
+same classes. `src/app/Footer.tsx` gained a `nav aria-label="Footer"` linking to all three pages,
+above the existing copyright line.
 
-**Why now:** These pages benefit from the header/footer shell (Step 1) and, ideally, the finished
-visual language from the theme step; doing them after the more structural steps means they're
-built against a stable design system instead of one still being revised.
+The Privacy Policy and Terms content was written to describe this specific app's actual behavior,
+not generic boilerplate: no backend and no real accounts, the login form's format-only validation,
+the demo session (username only, `sessionStorage`, cleared on tab close), what `localStorage` is
+used for (the SWAPI response cache and the theme preference), and an explicit "no cookies, no
+analytics, no tracking" statement, all of which are true of the app as built in Steps 1 through 6.
+The About page credits the public SWAPI, includes the standard "not affiliated with Lucasfilm or
+Disney" disclaimer, lists the tech stack, and links to the project's own GitHub repository (the
+same URL already used in this changelog's compare links, not a newly invented one).
+
+**Why now:** These pages benefit from the header/footer shell (Step 1) and the finished visual
+language from the theme step; doing them after the more structural steps means they're built
+against a stable design system instead of one still being revised.
+
+**Changes:** `src/app/routes.ts` (`about`/`privacy`/`terms` added), `src/app/router.tsx` (three new
+public routes), `src/app/Footer.tsx` (footer nav added), `src/shared/components/StaticPage.tsx`
+(new), `src/pages/AboutPage.tsx` / `PrivacyPolicyPage.tsx` / `TermsPage.tsx` (new).
+
+**Decision:** No dedicated test files for the three new pages, consistent with the existing
+convention that `LoginPage.tsx`/`TablePage.tsx`/`NotFoundPage.tsx` (thin, content-only route
+components) don't have them either: this project's testing convention is "test real logic," and
+static prose content isn't logic. Verified by hand instead (see Validation).
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (57 tests,
+unchanged), and `npm run build` all pass. Verified against the real dev server in headless Chrome:
+all three pages render their heading and every `h2` (5 on About, 6 on Privacy, 7 on Terms) with no
+horizontal overflow at 360px or 1280px in either theme; the footer's three links have the correct
+`href`s and clicking one (a real click, not a location assignment) navigates to the right page; no
+console errors anywhere.
 
 ---
 

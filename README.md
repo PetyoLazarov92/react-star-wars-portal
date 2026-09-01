@@ -39,15 +39,19 @@ explicitly not real authentication: it's a client-side personalization and navig
 with no server, no credential check, and no persistent account behind it. The theme control is a
 three-way segmented switch (light, dark, or follow the OS preference, the default until a choice is
 made), persisting the choice in `localStorage` and, in system mode, reacting live to an OS-level
-theme change with no reload needed. All pages, the header, the footer, and the offline modal hold
-up at mobile, tablet, and desktop widths without page-level horizontal overflow, with interactive
-controls sized for comfortable touch targets. An automated
-`axe-core` scan reports
-zero violations (in both themes), and the table and the offline modal's keyboard focus handling
-have both been verified by hand. A Vitest + React Testing Library suite covers the login
-validation boundaries, the `localStorage` cache helper (TTL expiry and corrupted or invalid data),
-the `?page=` parsing helper, and a smoke test of the login form's enable/disable behavior. See
-`docs/development-plan.md` for the full step-by-step history.
+theme change with no reload needed. The footer links to three static pages, About, Privacy Policy,
+and Terms and Conditions (`/about`, `/privacy`, `/terms`), sharing one typography layout
+(`shared/components/StaticPage.tsx`) so their headings, paragraphs, lists, and links read as one
+visual system; the Privacy Policy and Terms describe this app's actual behavior (no backend, no
+real accounts, no cookies or tracking) rather than generic boilerplate. All pages, the header, the
+footer, and the offline modal hold up at mobile, tablet, and desktop widths without page-level
+horizontal overflow, with interactive controls sized for comfortable touch targets. An automated
+`axe-core` scan reports zero violations (in both themes), and the table and the offline modal's
+keyboard focus handling have both been verified by hand. A Vitest + React Testing Library suite
+covers the login validation boundaries, the `localStorage` cache helper (TTL expiry and corrupted
+or invalid data), the `?page=` parsing helper, the demo session and toast systems, and a smoke test
+of the login form's enable/disable behavior. See `docs/development-plan.md` for the full
+step-by-step history.
 
 ## Tech stack
 
@@ -97,13 +101,16 @@ src/
     router.tsx     # <Routes>/<Route> definitions, nested under Layout
     Layout.tsx     # app shell: Header, <Outlet /> for the current route, Footer
     Header.tsx     # sticky app bar: site name, Login/session-aware nav, ThemeToggle
-    Footer.tsx     # copyright notice with an auto-updating year
+    Footer.tsx     # nav to About/Privacy/Terms, copyright notice with an auto-updating year
     ProtectedRoute.tsx  # redirects to / when there is no demo session (a nav guard, not security)
-    ProtectedRoute.test.tsx  # redirect vs. pass-through cases
+    ProtectedRoute.test.tsx  # redirect vs. pass-through cases, toast shown, StrictMode regression
     OfflineModal.tsx  # offline-specific modal, shown app-wide via useOnlineStatus
   pages/
     LoginPage.tsx      # renders the login form
     TablePage.tsx       # renders the people table
+    AboutPage.tsx         # tech stack, SWAPI credit, link to the GitHub repo
+    PrivacyPolicyPage.tsx    # what sessionStorage/localStorage are used for, no cookies/tracking
+    TermsPage.tsx              # demo/no-warranty disclaimer, SWAPI/trademark credit
     NotFoundPage.tsx
   features/
     auth/
@@ -140,6 +147,7 @@ src/
     components/
       Modal.tsx    # generic accessible dialog built on the native <dialog> element
       ThemeToggle.tsx    # light/dark toggle button, rendered once from app/Header.tsx
+      StaticPage.tsx    # shared heading/paragraph/list/link typography for content pages
     toast/
       toastContext.ts    # createContext() call and its type (not a component)
       ToastProvider.tsx    # toast state + showToast(); renders the one visible stack
@@ -169,4 +177,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.6.0`.
+batching several steps under one release; the current version is `1.7.0`.
