@@ -1,8 +1,14 @@
 # Star Wars Portal
 
+[![License: MIT](https://img.shields.io/github/license/PetyoLazarov92/react-star-wars-portal)](LICENSE)
+[![Version](https://img.shields.io/github/package-json/v/PetyoLazarov92/react-star-wars-portal)](CHANGELOG.md)
+[![Live demo](https://img.shields.io/website?url=https%3A%2F%2Fstarwars.webtimeless.bg%2F&label=live%20demo)](https://starwars.webtimeless.bg/)
+
 A small, production-style React + TypeScript application: a home page leading to a login form
 (client-side validation only, no real authentication) that in turn leads to a paginated table of
 Star Wars characters from the public [SWAPI](https://swapi.py4e.com/api/people).
+
+**Live demo: [starwars.webtimeless.bg](https://starwars.webtimeless.bg/)**
 
 This README describes the project's real, current state. See
 [`AGENTS.md`](AGENTS.md) for full architecture, coding, and security conventions,
