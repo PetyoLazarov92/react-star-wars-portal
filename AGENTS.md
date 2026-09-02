@@ -219,5 +219,6 @@ messages; the developer decides when and how to commit.
   phase) are living roadmaps: update the relevant step (status, decisions, anything learned during
   implementation) as it's completed or changed, rather than leaving it to describe only the
   original intent.
-- Selected AI conversation exports that captured a real architectural discussion or decision can be
-  kept under `docs/chats/` (see the README there); most conversations should not be exported.
+- Sanitized full-transcript exports of AI coding sessions are kept under `docs/chats/` as a build
+  history reference, generated with `scripts/export-chat-history.py` (see the README there for the
+  export and sanitization conventions).
