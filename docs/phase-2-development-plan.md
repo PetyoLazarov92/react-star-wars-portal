@@ -585,8 +585,56 @@ login form lands on `/table`, not `/`; the 404 page's link and the header's bran
 
 ---
 
-All nine steps originally planned for this phase are complete as of `1.9.0`. Three further,
+### Step 12: Replace the header title and favicon with Star Wars artwork
+
+**Status:** Done (shipped as `1.12.0`)
+
+**What:** The header's plain-text "Star Wars Portal" title replaced with the official Star Wars
+wordmark, and the plain yellow star favicon replaced with the Rebel Alliance insignia, both supplied
+as SVGs sourced from [svgrepo.com](https://www.svgrepo.com/). The wordmark is inlined directly in
+`src/app/Header.tsx` as a new `BrandLogo` component rather than loaded via `<img>`: inlining lets
+its path use `fill="currentColor"` instead of a hardcoded color, so it inherits the surrounding text
+color exactly like every other icon already in that file, and switches between light and dark
+automatically with no extra `dark:` class needed. The source SVG's solid white background rect
+(needed when the logo sits on an arbitrary page background, not here) was dropped, since an inline
+icon on the app's own themed header doesn't need one. Because the logo carries no visible text of
+its own, the brand `NavLink` gained `aria-label="Star Wars Portal"` to keep the same accessible name
+it had when "Star Wars Portal" was rendered as real text.
+
+**Bug found and fixed during review:** the first pass kept the source file's square
+`viewBox="0 0 192.756 192.756"`, sized purely by height (`h-7 w-auto sm:h-8`). The wordmark itself
+only occupies the vertical middle of that square (measured with `getBBox()` in a headless page:
+x 5.669-187.088, y 55.922-136.834), so more than half the box was empty above and below it, making
+the logo look tiny with a lot of surrounding whitespace at the sizes the header actually uses.
+Fixed by cropping the viewBox to the wordmark's real bounding box plus a small margin
+(`viewBox="2.669 52.922 187.419 86.912"`), so the same height classes now render the wordmark
+filling its box instead of a quarter of it.
+
+The favicon (`public/favicon.svg`) was replaced outright rather than inlined, since a favicon is
+loaded by the browser chrome, not part of the app's own React tree, and can't react to the app's
+theme regardless. Its source markup (a Dribbble-icon-pack export with two levels of `transform`
+translating far-off coordinates into view) was flattened to one `<path>` with a single
+`transform="translate(-4,-7439)"`, computed by composing the original two translates
+(`translate(-60,-7599)` then `translate(56,160)`), keeping the exact same rendered geometry; its
+fill was kept at the app's existing accent yellow (`#facc15`, the same color the previous plain-star
+placeholder favicon used) rather than changed, since only the header logo was asked to be
+theme-aware.
+
+**Changes:** `src/app/Header.tsx` (`BrandLogo` component added, brand `NavLink`'s text content
+replaced with it, `aria-label` added), `public/favicon.svg` (replaced).
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (77 tests,
+unchanged, since this step touched no tested logic), and `npm run build` all pass. Verified visually
+in headless Chrome: the logo renders solid black in light mode and solid white in dark mode with no
+visible background box and fills its height rather than floating in empty space, the brand link's
+`aria-label` is present and correct, and the favicon renders as the Rebel Alliance insignia in the
+app's accent yellow.
+
+---
+
+All nine steps originally planned for this phase are complete as of `1.9.0`. Four further,
 user-requested changes landed after that: a cursor-style fix (`1.9.1`), a header nav polish pass
-(`1.10.0`), and the login/home route split (`1.11.0`); see Steps 9 through 11 above. Any further
-UI/UX work beyond what's described above (e.g. real user accounts, additional unit types, more
-toast use sites) would be a new phase with its own plan document, not an addition to this one.
+(`1.10.0`), the login/home route split (`1.11.0`), and swapping in Star Wars artwork for the header
+title and favicon (`1.12.0`); see Steps 9 through 12 above. Any further UI/UX work beyond what's
+described above (e.g. real user accounts, additional unit types, more toast use sites) would be a
+new phase with its own plan document, not an addition to this one.

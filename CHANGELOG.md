@@ -12,6 +12,27 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-09-02
+
+### Added
+
+- A favicon showing the Rebel Alliance insignia (from [svgrepo.com](https://www.svgrepo.com/)),
+  replacing the plain yellow star placeholder used since Phase 1.
+
+### Changed
+
+- The header's plain-text "Star Wars Portal" title replaced with the official Star Wars wordmark
+  (also from svgrepo.com), inlined as SVG in `src/app/Header.tsx` rather than an `<img>` so its
+  path can use `fill="currentColor"` and switch between light and dark automatically, the same way
+  every other icon in the header already does; the source SVG's solid white background rect was
+  dropped for this (an inline icon on a themed header doesn't need one). The brand link keeps its
+  accessible name via `aria-label="Star Wars Portal"` since the logo itself carries no visible text
+  for assistive tech to read. The source file's square `0 0 192.756 192.756` viewBox left over
+  half of it empty above and below the actual wordmark, which made the sized-by-height logo look
+  tiny with a lot of surrounding whitespace; the viewBox was cropped to the wordmark's actual
+  bounding box (measured with `getBBox()`, plus a little breathing room) so it fills its box
+  properly.
+
 ## [1.11.0] - 2026-09-02
 
 ### Added

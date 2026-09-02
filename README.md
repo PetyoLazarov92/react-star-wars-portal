@@ -9,7 +9,7 @@ This README describes the project's real, current state. See
 [`docs/development-plan.md`](docs/development-plan.md) for the Phase 1 roadmap that shipped
 `1.0.0`, and [`docs/phase-2-development-plan.md`](docs/phase-2-development-plan.md) for the
 follow-up UI/UX and structure pass that shipped `1.9.0` (with small post-release fixes and polish
-in `1.9.1`, `1.10.0`, and `1.11.0`).
+in `1.9.1`, `1.10.0`, `1.11.0`, and `1.12.0`).
 
 ## Current status
 
@@ -39,7 +39,8 @@ app shows an accessible, dismissible offline modal that reappears the next time 
 drops. A small toast notification system (`src/shared/toast/`) shows dismissible, auto-expiring
 messages (five seconds, or a manual close) in the bottom corner, used today for both redirects
 above. Every page is wrapped in a shared app shell (`src/app/Layout.tsx`): a sticky header with the
-site name (linking to the home page), a light/dark/system theme control, and session-aware
+Star Wars wordmark (linking to the home page, its `fill="currentColor"` adapting to the theme like
+every other header icon), a light/dark/system theme control, and session-aware
 navigation (an icon plus a `Login`
 link when logged out; when logged in, a `People` link to `/table`, a decorative divider, a greeting,
 and a `Log out` action, `People` and `Log out` shown icon-only below the `sm` breakpoint to keep the
@@ -115,7 +116,7 @@ src/
     routes.ts      # named route path constants
     router.tsx     # <Routes>/<Route> definitions, nested under Layout
     Layout.tsx     # app shell: Header, <Outlet /> for the current route, Footer
-    Header.tsx     # sticky app bar: site name, Login/session-aware nav, ThemeToggle
+    Header.tsx     # sticky app bar: Star Wars wordmark, Login/session-aware nav, ThemeToggle
     Footer.tsx     # nav to About/Privacy/Terms, copyright notice with an auto-updating year
     ProtectedRoute.tsx  # redirects /table to /login when there is no demo session (nav guard, not security)
     ProtectedRoute.test.tsx  # redirect vs. pass-through cases, toast shown, StrictMode regression
@@ -201,4 +202,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.11.0`.
+batching several steps under one release; the current version is `1.12.0`.
