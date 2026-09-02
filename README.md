@@ -1,30 +1,33 @@
 # Star Wars Portal
 
-A small, production-style React + TypeScript application: a login page (client-side validation
-only, no real authentication) that leads to a paginated table of Star Wars characters from the
-public [SWAPI](https://swapi.py4e.com/api/people).
+A small, production-style React + TypeScript application: a home page leading to a login form
+(client-side validation only, no real authentication) that in turn leads to a paginated table of
+Star Wars characters from the public [SWAPI](https://swapi.py4e.com/api/people).
 
 This README describes the project's real, current state. See
 [`AGENTS.md`](AGENTS.md) for full architecture, coding, and security conventions,
 [`docs/development-plan.md`](docs/development-plan.md) for the Phase 1 roadmap that shipped
 `1.0.0`, and [`docs/phase-2-development-plan.md`](docs/phase-2-development-plan.md) for the
 follow-up UI/UX and structure pass that shipped `1.9.0` (with small post-release fixes and polish
-in `1.9.1` and `1.10.0`).
+in `1.9.1`, `1.10.0`, and `1.11.0`).
 
 ## Current status
 
 Version `1.0.0`'s full planned feature set (see `docs/development-plan.md`) shipped first; a
 follow-up UI/UX and structure pass (see `docs/phase-2-development-plan.md`) is now complete on top
-of it as of `1.9.0`. `/` has a working, client-side
-validated login form (with a show/hide toggle on the password field) that, on success, records a
-lightweight demo session (just the submitted username, in `sessionStorage`, never the password) and
-navigates to `/table`, which shows real, paginated SWAPI character data (name, mass, height, hair
-color, skin color) with Previous/Next controls, a loading state, and a generic error message on
-failure. Mass and height each have a small unit toggle above the table (kilograms/pounds,
-centimeters/meters): switching units updates the column headers and every cell immediately, purely
-client-side, with no new network request, since the original API value and unit are the source of
-truth throughout. `/table` itself redirects a visitor with no session back to `/` (`src/app/ProtectedRoute
-.tsx`), with a toast notification explaining why: a navigation guard through the intended
+of it as of `1.9.0`. `/` is a simple home page (a heading, an
+[undraw.co](https://undraw.co/) illustration, and a short description of the app), and `/login` has
+a working, client-side validated login form (with a show/hide toggle on the password field) that,
+on success, records a lightweight demo session (just the submitted username, in `sessionStorage`,
+never the password) and navigates to `/table`, which shows real, paginated SWAPI character data
+(name, mass, height, hair color, skin color) with Previous/Next controls, a loading state, and a
+generic error message on failure. Mass and height each have a small unit toggle above the table
+(kilograms/pounds, centimeters/meters): switching units updates the column headers and every cell
+immediately, purely client-side, with no new network request, since the original API value and unit
+are the source of truth throughout. `/table` itself redirects a visitor with no session to `/login`
+(`src/app/ProtectedRoute.tsx`), with a toast notification explaining why; the reverse also holds:
+`/login` redirects a visitor who already has a session to `/` (`src/app/RedirectIfAuthenticated.tsx`),
+with a toast noting they're already logged in. Both are navigation guards through the intended
 login-first flow, not a security boundary, since there's no server and the character data isn't
 actually protected. The current page lives in the
 `?page=` URL search param, so reloading, sharing a link, and browser back/forward all keep working
@@ -34,9 +37,10 @@ last cached data for that page (even past its five-minute TTL) is shown below th
 instead of a blank failure, with pagination still available. Losing the connection anywhere in the
 app shows an accessible, dismissible offline modal that reappears the next time the connection
 drops. A small toast notification system (`src/shared/toast/`) shows dismissible, auto-expiring
-messages (five seconds, or a manual close) in the bottom corner, used today for the protected-route
-redirect above. Every page is wrapped in a shared app shell (`src/app/Layout.tsx`): a sticky header with the
-site name, a light/dark/system theme control, and session-aware navigation (an icon plus a `Login`
+messages (five seconds, or a manual close) in the bottom corner, used today for both redirects
+above. Every page is wrapped in a shared app shell (`src/app/Layout.tsx`): a sticky header with the
+site name (linking to the home page), a light/dark/system theme control, and session-aware
+navigation (an icon plus a `Login`
 link when logged out; when logged in, a `People` link to `/table`, a decorative divider, a greeting,
 and a `Log out` action, `People` and `Log out` shown icon-only below the `sm` breakpoint to keep the
 header from overflowing on narrow screens), and a footer with a copyright notice whose year updates
@@ -58,9 +62,11 @@ modal, and toasts a consistent sense of elevation. An automated `axe-core` scan 
 violations (in both themes), and the table and the offline modal's keyboard focus handling have
 both been verified by hand. A Vitest + React Testing Library suite
 covers the login validation boundaries, the `localStorage` cache helper (TTL expiry and corrupted
-or invalid data), the `?page=` parsing helper, the demo session and toast systems, and a smoke test
-of the login form's enable/disable behavior. See `docs/development-plan.md` for the full
-step-by-step history.
+or invalid data), the `?page=` parsing helper, the demo session and toast systems, both route
+guards (`ProtectedRoute` and `RedirectIfAuthenticated`, including a regression test that submits
+the real login form through the guard to confirm it reaches `/table` rather than being redirected
+home), and a smoke test of the login form's enable/disable behavior. See
+`docs/development-plan.md` for the full step-by-step history.
 
 ## Tech stack
 
@@ -111,10 +117,13 @@ src/
     Layout.tsx     # app shell: Header, <Outlet /> for the current route, Footer
     Header.tsx     # sticky app bar: site name, Login/session-aware nav, ThemeToggle
     Footer.tsx     # nav to About/Privacy/Terms, copyright notice with an auto-updating year
-    ProtectedRoute.tsx  # redirects to / when there is no demo session (a nav guard, not security)
+    ProtectedRoute.tsx  # redirects /table to /login when there is no demo session (nav guard, not security)
     ProtectedRoute.test.tsx  # redirect vs. pass-through cases, toast shown, StrictMode regression
+    RedirectIfAuthenticated.tsx  # redirects /login to / when a demo session already exists
+    RedirectIfAuthenticated.test.tsx  # redirect/pass-through cases, toast, and the login-race regression
     OfflineModal.tsx  # offline-specific modal, shown app-wide via useOnlineStatus
   pages/
+    HomePage.tsx        # heading, undraw.co illustration, short description
     LoginPage.tsx      # renders the login form
     TablePage.tsx       # renders the people table
     AboutPage.tsx         # tech stack, SWAPI credit, link to the GitHub repo
@@ -192,4 +201,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.10.0`.
+batching several steps under one release; the current version is `1.11.0`.

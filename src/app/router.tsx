@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import AboutPage from '../pages/AboutPage'
+import HomePage from '../pages/HomePage'
 import LoginPage from '../pages/LoginPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import PrivacyPolicyPage from '../pages/PrivacyPolicyPage'
@@ -7,13 +8,22 @@ import TablePage from '../pages/TablePage'
 import TermsPage from '../pages/TermsPage'
 import Layout from './Layout'
 import ProtectedRoute from './ProtectedRoute'
+import RedirectIfAuthenticated from './RedirectIfAuthenticated'
 import { ROUTES } from './routes'
 
 function AppRouter() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path={ROUTES.login} element={<LoginPage />} />
+        <Route path={ROUTES.home} element={<HomePage />} />
+        <Route
+          path={ROUTES.login}
+          element={
+            <RedirectIfAuthenticated>
+              <LoginPage />
+            </RedirectIfAuthenticated>
+          }
+        />
         <Route
           path={ROUTES.table}
           element={

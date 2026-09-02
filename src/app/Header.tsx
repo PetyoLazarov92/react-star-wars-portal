@@ -70,7 +70,7 @@ function Header() {
     <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-4 py-2 sm:px-6">
         <NavLink
-          to={ROUTES.login}
+          to={ROUTES.home}
           end
           className={`shrink-0 rounded text-base font-semibold tracking-tight whitespace-nowrap sm:text-lg ${INTERACTIVE_CLASS_NAME}`}
         >

@@ -13,7 +13,7 @@ function renderAt(path: string, { strict = false }: { strict?: boolean } = {}) {
       <SessionProvider>
         <ToastProvider>
           <Routes>
-            <Route path="/" element={<div>Login page</div>} />
+            <Route path="/login" element={<div>Login page</div>} />
             <Route
               path="/table"
               element={
@@ -35,7 +35,7 @@ describe('ProtectedRoute', () => {
     sessionStorage.clear()
   })
 
-  it('redirects to / when there is no session', () => {
+  it('redirects to /login when there is no session', () => {
     renderAt('/table')
 
     expect(screen.getByText('Login page')).toBeInTheDocument()

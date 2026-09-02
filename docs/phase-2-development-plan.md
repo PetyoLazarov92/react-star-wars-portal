@@ -532,8 +532,61 @@ and the greeting/`Log out` group), and both in dark mode.
 
 ---
 
-All nine steps originally planned for this phase are complete as of `1.9.0` (a cursor-style fix
-landed after release as `1.9.1`, and a header nav polish pass as `1.10.0`; see Steps 9 and 10
-above). Any further UI/UX work beyond what's described above (e.g. real user accounts, additional
-unit types, more toast use sites) would be a new phase with its own plan document, not an addition
-to this one.
+### Step 11: Split the login form onto its own route, add a home page
+
+**Status:** Done (shipped as `1.11.0`)
+
+**What:** `/` had done double duty as the login page since Phase 1; requested split: the login form
+moved to its own `/login` route (`src/pages/LoginPage.tsx`, unchanged internally), and `/` became a
+proper home page (`src/pages/HomePage.tsx`, new): a heading, an
+[undraw.co](https://undraw.co/) illustration (`public/space-exploration.svg`), and a short
+description of what the app does. `src/app/routes.ts` gained `ROUTES.home` (`'/'`) alongside the
+now-relocated `ROUTES.login` (`'/login'`, previously `'/'`). The header's brand link and the 404
+page's link, both previously pointing at the login page (since that used to be the same route as
+home), now point at the new home page instead.
+
+The reverse of `ProtectedRoute` was also added: `src/app/RedirectIfAuthenticated.tsx` wraps the
+`/login` route so a visitor who already has a demo session and lands there directly (a stale
+bookmark, typing the URL, clicking back) is redirected to the home page with a toast ("You're
+already logged in."), instead of being shown the login form again for no reason.
+
+**Bug found and fixed during validation:** the first implementation of `RedirectIfAuthenticated`
+read `session` fresh on every render, mirroring `ProtectedRoute` exactly. That's correct for
+`ProtectedRoute` (nothing else on `/table` changes the session mid-render), but wrong here:
+`LoginForm`'s submit handler calls `login()` (setting the session) and then
+`navigate(ROUTES.table)` in the same function, and a headless-Chrome check of the real login flow
+showed the app landing on `/` instead of `/table` after every login. The two navigations (the
+session-context update and the router's own location update) don't resolve in the same React
+commit, so the reactive guard saw the session go non-null while still matched on `/login` and fired
+its own redirect to the home page first, racing and winning against `LoginForm`'s intended
+`/table` destination. Fixed by capturing "was there already a session when this route was entered"
+once, via a lazy `useState` initializer, instead of re-deriving it on every render: this still
+catches a direct visit to `/login` while signed in (the actual intent) without reacting to signing
+in from the very form it wraps.
+
+**Changes:** `src/app/routes.ts` (`ROUTES.home` added, `ROUTES.login` changed to `/login`),
+`src/pages/HomePage.tsx` (new), `public/space-exploration.svg` (new asset), `src/app/router.tsx`
+(new `ROUTES.home` route, `/login` wrapped in `RedirectIfAuthenticated`), `src/app/Header.tsx` /
+`src/pages/NotFoundPage.tsx` (brand/404 links repointed to `ROUTES.home`), `src/pages/LoginPage.tsx`
+(unchanged content, now mounted at `/login`), `src/app/RedirectIfAuthenticated.tsx` (new) plus its
+test file, `src/app/ProtectedRoute.test.tsx` (its own inline login route updated from `/` to
+`/login` to match).
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (77 tests:
+71 carried over, 5 new for `RedirectIfAuthenticated`'s own behavior, 1 regression test that fills
+out and submits the real `LoginForm` inside the guard and asserts it reaches `/table`, not `/`),
+and `npm run build` all pass. The regression test was confirmed to actually catch the bug: reverting
+the fix locally (rereading `session` on every render instead of capturing it once) made that one
+test fail as expected, then the fix was restored. Verified the full flow against the real dev
+server in headless Chrome: `/` shows the new home page (logged in or out); `/login` shows the login
+form when logged out and redirects to `/` with the toast when already logged in; submitting the
+login form lands on `/table`, not `/`; the 404 page's link and the header's brand link both go to
+`/`.
+
+---
+
+All nine steps originally planned for this phase are complete as of `1.9.0`. Three further,
+user-requested changes landed after that: a cursor-style fix (`1.9.1`), a header nav polish pass
+(`1.10.0`), and the login/home route split (`1.11.0`); see Steps 9 through 11 above. Any further
+UI/UX work beyond what's described above (e.g. real user accounts, additional unit types, more
+toast use sites) would be a new phase with its own plan document, not an addition to this one.

@@ -8,10 +8,10 @@ function NotFoundPage() {
       <h1 className="text-2xl font-semibold">Page not found</h1>
       <p className="text-slate-600 dark:text-slate-400">
         <Link
-          to={ROUTES.login}
+          to={ROUTES.home}
           className={`rounded underline underline-offset-2 hover:text-slate-900 dark:hover:text-white ${INTERACTIVE_CLASS_NAME}`}
         >
-          Go back to the login page
+          Go back to the home page
         </Link>
       </p>
     </main>

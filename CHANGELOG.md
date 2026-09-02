@@ -12,6 +12,37 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-09-02
+
+### Added
+
+- A dedicated home page (`/`, `src/pages/HomePage.tsx`): a heading, an illustration
+  (`public/space-exploration.svg`, from [undraw.co](https://undraw.co/)), and a short description
+  of what the app does. The login form moved off `/` and now lives at its own `/login` route.
+- `src/app/RedirectIfAuthenticated.tsx`: a route guard for `/login`, the mirror image of the
+  existing `ProtectedRoute`. A visitor who already has a demo session and navigates to `/login`
+  directly (e.g. by URL or a stale bookmark) is redirected to the home page with a toast
+  ("You're already logged in."), instead of being shown the login form again.
+
+### Changed
+
+- `ROUTES.login` changed from `/` to `/login`; a new `ROUTES.home` (`/`) was added. The header's
+  brand link and the 404 page's link now point at the home page instead of the login page.
+
+### Fixed
+
+- Caught during manual testing: `RedirectIfAuthenticated`'s first implementation re-read the
+  session on every render, which raced `LoginForm`'s own submit handler. That handler calls
+  `login()` (setting the session) and then `navigate('/table')` in the same function, but those
+  two navigations don't land in the same React commit, so the guard's reactive check saw the
+  session become non-null while the route was still `/login` and redirected the freshly logged-in
+  user to the home page instead of letting them reach `/table`. Fixed by capturing "was there
+  already a session when this route was entered" once, via a lazy `useState` initializer, instead
+  of re-checking on every render: this catches a direct visit to `/login` while signed in (the
+  actual intent) without reacting to signing in from the very form it wraps. Covered by a
+  regression test that fills out and submits the real `LoginForm` inside the guard and asserts it
+  reaches `/table`, not `/`.
+
 ## [1.10.0] - 2026-09-02
 
 ### Added
