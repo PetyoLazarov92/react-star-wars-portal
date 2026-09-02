@@ -487,8 +487,19 @@ the focused `Login` link shows a clearly visible ring. The header's and `Modal`'
 source). Tab order through the header (brand link, then `Login`, then the three theme buttons)
 was unchanged from before this step.
 
+**Bug found and fixed after release (`1.9.1`):** every button in the app showed the browser's
+default cursor on hover, not a pointer, because native `<button>` elements don't get one by
+default in Chrome/Firefox (only `<a>` links do), and neither Tailwind's preflight nor this app's
+own styles set one. Since `INTERACTIVE_CLASS_NAME` (added by this step) is already applied to
+every button and link in the app, adding `cursor-pointer` to it there fixed every site at once,
+without touching individual components. Confirmed via `getComputedStyle(...).cursor` in headless
+Chrome across the login page, the table page, the About page, and the 404 page: every `<button>`
+and `<a href>` now reports `pointer`, and disabled buttons (Pagination's `Previous`, the login
+form's submit button before the form is valid) correctly still report `not-allowed`.
+
 ---
 
-All nine steps originally planned for this phase are complete as of `1.9.0`. Any further UI/UX
-work beyond what's described above (e.g. real user accounts, additional unit types, more toast use
-sites) would be a new phase with its own plan document, not an addition to this one.
+All nine steps originally planned for this phase are complete as of `1.9.0` (a small cursor-style
+fix landed after release as `1.9.1`, see Step 9 above). Any further UI/UX work beyond what's
+described above (e.g. real user accounts, additional unit types, more toast use sites) would be a
+new phase with its own plan document, not an addition to this one.

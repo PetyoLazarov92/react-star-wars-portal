@@ -12,6 +12,18 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.9.1] - 2026-09-02
+
+### Fixed
+
+- Every button in the app showed the browser's default (arrow) cursor on hover instead of a
+  pointer, since native `<button>` elements don't get a pointer cursor by default in Chrome/
+  Firefox (unlike `<a>` links, which already did) and neither Tailwind's preflight nor this app's
+  own styles added one. Fixed by adding `cursor-pointer` to `src/shared/focusRing.ts`'s
+  `INTERACTIVE_CLASS_NAME`, the class already shared by every button and link in the app, so the
+  fix applies everywhere at once. Disabled buttons are unaffected: their existing
+  `disabled:cursor-not-allowed` still wins.
+
 ## [1.9.0] - 2026-09-02
 
 ### Added

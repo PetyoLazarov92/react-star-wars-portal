@@ -8,7 +8,7 @@ This README describes the project's real, current state. See
 [`AGENTS.md`](AGENTS.md) for full architecture, coding, and security conventions,
 [`docs/development-plan.md`](docs/development-plan.md) for the Phase 1 roadmap that shipped
 `1.0.0`, and [`docs/phase-2-development-plan.md`](docs/phase-2-development-plan.md) for the
-follow-up UI/UX and structure pass that shipped `1.9.0`.
+follow-up UI/UX and structure pass that shipped `1.9.0` (with a small post-release fix in `1.9.1`).
 
 ## Current status
 
@@ -146,7 +146,8 @@ src/
       UnitToggle.tsx                        # generic 2-option segmented control (height, mass)
       Pagination.tsx                          # Previous/Next controls, disabled at the first/last page
   shared/
-    focusRing.ts    # INTERACTIVE_CLASS_NAME: the app-wide focus-visible + hover-transition style
+    focusRing.ts    # INTERACTIVE_CLASS_NAME: the app-wide cursor-pointer, focus-visible, and
+                    # hover-transition style
     api/
       httpClient.ts    # fetch wrapper: AbortSignal support, typed ApiError, returns unknown
     cache/
@@ -189,4 +190,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.9.0`.
+batching several steps under one release; the current version is `1.9.1`.

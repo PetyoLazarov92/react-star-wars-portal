@@ -10,6 +10,9 @@
 // read it. Leaving the browser with no authored outline at all outside `:focus-visible` is already
 // invisible (the CSS-spec initial `outline-style` is `none`), so nothing extra is needed for that
 // case. `transition` (not `transition-colors`) also covers the opacity-based hover treatments (e.g.
-// the toast dismiss button) that a color-only transition would miss.
+// the toast dismiss button) that a color-only transition would miss. `cursor-pointer` is included
+// because native `<button>` elements don't get a pointer cursor by default in Chrome/Firefox (only
+// links do); callers that disable a button already add `disabled:cursor-not-allowed`, which wins
+// over this since Tailwind emits variant utilities after their bare counterpart.
 export const INTERACTIVE_CLASS_NAME =
-  'transition duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 dark:focus-visible:outline-sky-400'
+  'cursor-pointer transition duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 dark:focus-visible:outline-sky-400'
