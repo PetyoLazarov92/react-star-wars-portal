@@ -8,7 +8,8 @@ This README describes the project's real, current state. See
 [`AGENTS.md`](AGENTS.md) for full architecture, coding, and security conventions,
 [`docs/development-plan.md`](docs/development-plan.md) for the Phase 1 roadmap that shipped
 `1.0.0`, and [`docs/phase-2-development-plan.md`](docs/phase-2-development-plan.md) for the
-follow-up UI/UX and structure pass that shipped `1.9.0` (with a small post-release fix in `1.9.1`).
+follow-up UI/UX and structure pass that shipped `1.9.0` (with small post-release fixes and polish
+in `1.9.1` and `1.10.0`).
 
 ## Current status
 
@@ -35,10 +36,11 @@ app shows an accessible, dismissible offline modal that reappears the next time 
 drops. A small toast notification system (`src/shared/toast/`) shows dismissible, auto-expiring
 messages (five seconds, or a manual close) in the bottom corner, used today for the protected-route
 redirect above. Every page is wrapped in a shared app shell (`src/app/Layout.tsx`): a sticky header with the
-site name, a light/dark/system theme control, and session-aware navigation (a `Login` link when
-logged out; a greeting, a `People` link to `/table`, and a `Log out` action when logged in, the
-latter two shown icon-only below the `sm` breakpoint to keep the header from overflowing on narrow
-screens), and a footer with a copyright notice whose year updates on its own. This demo session is
+site name, a light/dark/system theme control, and session-aware navigation (an icon plus a `Login`
+link when logged out; when logged in, a `People` link to `/table`, a decorative divider, a greeting,
+and a `Log out` action, `People` and `Log out` shown icon-only below the `sm` breakpoint to keep the
+header from overflowing on narrow screens), and a footer with a copyright notice whose year updates
+on its own. This demo session is
 explicitly not real authentication: it's a client-side personalization and navigation convenience,
 with no server, no credential check, and no persistent account behind it. The theme control is a
 three-way segmented switch (light, dark, or follow the OS preference, the default until a choice is
@@ -190,4 +192,4 @@ This project follows [Semantic Versioning](https://semver.org/) and keeps a
 stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
 major bump is reserved for a breaking change. Since Phase 2 (see
 `docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.9.1`.
+batching several steps under one release; the current version is `1.10.0`.

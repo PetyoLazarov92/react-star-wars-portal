@@ -25,7 +25,7 @@ function PeopleIcon() {
   )
 }
 
-function LogOutIcon() {
+function LoginIcon() {
   return (
     <svg
       aria-hidden="true"
@@ -39,6 +39,25 @@ function LogOutIcon() {
         strokeLinecap="round"
         strokeLinejoin="round"
         d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"
+      />
+    </svg>
+  )
+}
+
+function LogOutIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      className="h-5 w-5"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"
       />
     </svg>
   )
@@ -60,11 +79,15 @@ function Header() {
         <nav aria-label="Main" className="flex items-center gap-1 sm:gap-2">
           {session ? (
             <>
-              <Greeting username={session.username} />
               <NavLink to={ROUTES.table} className={navItemClassName}>
                 <PeopleIcon />
                 <span className="hidden sm:inline">People</span>
               </NavLink>
+              <span
+                aria-hidden="true"
+                className="h-6 w-px shrink-0 bg-slate-200 dark:bg-slate-700"
+              />
+              <Greeting username={session.username} />
               <button
                 type="button"
                 onClick={logout}
@@ -77,6 +100,7 @@ function Header() {
             </>
           ) : (
             <NavLink to={ROUTES.login} end className={navItemClassName}>
+              <LoginIcon />
               Login
             </NavLink>
           )}

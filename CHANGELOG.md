@@ -12,6 +12,24 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-09-02
+
+### Added
+
+- An icon next to the header's `Login` link, matching the icon-plus-label pattern `People` and
+  `Log out` already used.
+- A thin vertical divider in the header's logged-in nav, separating the primary nav item
+  (`People`) from the account-related items (the username greeting and `Log out`), which are now
+  grouped together after it (previous order had the greeting first, with no divider).
+
+### Fixed
+
+- The header's `Log out` button used an icon that actually depicts an arrow entering a box (the
+  conventional "sign in" glyph), not exiting one, because no `Login` icon existed yet to reveal the
+  mismatch. Reused that icon (now `LoginIcon`) for the new `Login` link, where it's the correct
+  glyph, and added a properly mirrored `LogOutIcon` (arrow exiting the box) for the `Log out`
+  button.
+
 ## [1.9.1] - 2026-09-02
 
 ### Fixed

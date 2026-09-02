@@ -499,7 +499,41 @@ form's submit button before the form is valid) correctly still report `not-allow
 
 ---
 
-All nine steps originally planned for this phase are complete as of `1.9.0` (a small cursor-style
-fix landed after release as `1.9.1`, see Step 9 above). Any further UI/UX work beyond what's
-described above (e.g. real user accounts, additional unit types, more toast use sites) would be a
-new phase with its own plan document, not an addition to this one.
+### Step 10: Header nav polish: Login icon and a logged-in grouping divider
+
+**Status:** Done (shipped as `1.10.0`)
+
+**What:** Two small header changes, requested after using the app for a while: an icon next to the
+`Login` link, matching the icon-plus-label pattern `People` and `Log out` already used, and a
+visual separation, in the logged-in state, between the primary nav item (`People`) and the
+account-related items (the username greeting and `Log out`). The logged-in nav order is now
+`People`, a thin vertical divider (`aria-hidden`, purely decorative, so it isn't announced or
+tab-stopped), the greeting, then `Log out` (previously the greeting came first, with no divider).
+
+**Bug found and fixed along the way:** the existing `LogOutIcon` in `src/app/Header.tsx` was, on
+inspection, actually the "arrow entering a box" glyph (an open-ended box with an arrow pointing
+into it from the outside), the conventional icon for _signing in_, not signing out, even though it
+was wired up to the `Log out` button. It had no counterpart for `Login` before this step, so the
+mismatch was never visually obvious. Reusing that existing SVG for the new `Login` icon (where the
+"entering" motion is actually correct) and adding a properly mirrored `LogOutIcon` (an open-ended
+box with an arrow exiting it) fixed both at once, rather than giving `Login` and `Log out` the same
+icon.
+
+**Changes:** `src/app/Header.tsx`: the old `LogOutIcon` function renamed to `LoginIcon` and applied
+to the `Login` link; a new, correctly-mirrored `LogOutIcon` added and applied to the `Log out`
+button; a decorative divider (`h-6 w-px` bar) inserted between `People` and the greeting in the
+logged-in nav; nav order changed to `People`, divider, greeting, `Log out`.
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (71 tests,
+unchanged), and `npm run build` all pass. Verified visually with screenshots from a headless
+Chrome session against the real dev server: logged-out header (icon reads as "entering", next to
+`Login`), logged-in header at desktop and mobile widths (divider visible at both, between `People`
+and the greeting/`Log out` group), and both in dark mode.
+
+---
+
+All nine steps originally planned for this phase are complete as of `1.9.0` (a cursor-style fix
+landed after release as `1.9.1`, and a header nav polish pass as `1.10.0`; see Steps 9 and 10
+above). Any further UI/UX work beyond what's described above (e.g. real user accounts, additional
+unit types, more toast use sites) would be a new phase with its own plan document, not an addition
+to this one.
