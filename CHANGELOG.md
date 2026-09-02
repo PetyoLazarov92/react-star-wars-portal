@@ -12,6 +12,31 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.13.2] - 2026-09-02
+
+### Changed
+
+- Overhauled `README.md` to read as a polished, professional project overview rather than a
+  development log: the long-form "Current status" narrative was replaced with a scannable "Key
+  features" list, a new "Technologies" table summarizes the stack, and a "Documentation" section
+  links out to `AGENTS.md`, the roadmap docs, and `CHANGELOG.md`.
+- Added tech-stack badges (React, TypeScript, Vite, Tailwind CSS, React Router, React Hook Form,
+  Zod, Vitest, ESLint, Prettier) alongside the existing license/version/live-demo badges, all
+  sourced dynamically from `package.json` via shields.io so they can't go stale.
+- Redrew the "Project structure" tree with proper `├──`/`└──`/`│` connectors and comments aligned
+  to a single column; co-located `*.test.ts`/`*.test.tsx` files were dropped from the diagram (a
+  footnote now says they mirror the source files they test) since listing every one made the tree
+  hard to scan.
+
+## [1.13.1] - 2026-09-02
+
+### Added
+
+- An [MIT `LICENSE`](LICENSE) file, with `package.json`'s `license` field set to match.
+- A live demo link ([starwars.webtimeless.bg](https://starwars.webtimeless.bg/)), called out at
+  the top of `README.md`, plus license, version, and live-demo status badges from
+  [shields.io](https://shields.io/).
+
 ## [1.13.0] - 2026-09-02
 
 ### Added

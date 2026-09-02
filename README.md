@@ -1,97 +1,77 @@
 # Star Wars Portal
 
-[![License: MIT](https://img.shields.io/github/license/PetyoLazarov92/react-star-wars-portal)](LICENSE)
-[![Version](https://img.shields.io/github/package-json/v/PetyoLazarov92/react-star-wars-portal)](CHANGELOG.md)
-[![Live demo](https://img.shields.io/website?url=https%3A%2F%2Fstarwars.webtimeless.bg%2F&label=live%20demo)](https://starwars.webtimeless.bg/)
+[![License: MIT](https://img.shields.io/github/license/PetyoLazarov92/react-star-wars-portal?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/github/package-json/v/PetyoLazarov92/react-star-wars-portal?style=flat-square&color=blue)](CHANGELOG.md)
+[![Live demo](https://img.shields.io/website?url=https%3A%2F%2Fstarwars.webtimeless.bg%2F&label=live%20demo&style=flat-square)](https://starwars.webtimeless.bg/)
+
+[![React](https://img.shields.io/github/package-json/dependency-version/PetyoLazarov92/react-star-wars-portal/react?label=React&logo=react&logoColor=white&color=61DAFB&style=flat-square)](https://react.dev/)
+[![TypeScript](https://img.shields.io/github/package-json/dependency-version/PetyoLazarov92/react-star-wars-portal/dev/typescript?label=TypeScript&logo=typescript&logoColor=white&color=3178C6&style=flat-square)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/github/package-json/dependency-version/PetyoLazarov92/react-star-wars-portal/dev/vite?label=Vite&logo=vite&logoColor=white&color=646CFF&style=flat-square)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/github/package-json/dependency-version/PetyoLazarov92/react-star-wars-portal/dev/tailwindcss?label=Tailwind%20CSS&logo=tailwindcss&logoColor=white&color=06B6D4&style=flat-square)](https://tailwindcss.com/)
+[![React Router](https://img.shields.io/github/package-json/dependency-version/PetyoLazarov92/react-star-wars-portal/react-router-dom?label=React%20Router&logo=reactrouter&logoColor=white&color=CA4245&style=flat-square)](https://reactrouter.com/)
+[![React Hook Form](https://img.shields.io/github/package-json/dependency-version/PetyoLazarov92/react-star-wars-portal/react-hook-form?label=React%20Hook%20Form&logo=reacthookform&logoColor=white&color=EC5990&style=flat-square)](https://react-hook-form.com/)
+[![Zod](https://img.shields.io/github/package-json/dependency-version/PetyoLazarov92/react-star-wars-portal/zod?label=Zod&logo=zod&logoColor=white&color=3E67B1&style=flat-square)](https://zod.dev/)
+[![Vitest](https://img.shields.io/github/package-json/dependency-version/PetyoLazarov92/react-star-wars-portal/dev/vitest?label=Vitest&logo=vitest&logoColor=white&color=6E9F18&style=flat-square)](https://vitest.dev/)
+[![ESLint](https://img.shields.io/github/package-json/dependency-version/PetyoLazarov92/react-star-wars-portal/dev/eslint?label=ESLint&logo=eslint&logoColor=white&color=4B32C3&style=flat-square)](https://eslint.org/)
+[![Prettier](https://img.shields.io/github/package-json/dependency-version/PetyoLazarov92/react-star-wars-portal/dev/prettier?label=Prettier&logo=prettier&logoColor=white&color=F7B93E&style=flat-square)](https://prettier.io/)
 
 A small, production-style React + TypeScript application: a home page leading to a login form
-(client-side validation only, no real authentication) that in turn leads to a paginated table of
-Star Wars characters from the public [SWAPI](https://swapi.py4e.com/api/people).
+(client-side format validation only, no real authentication) that in turn leads to a paginated
+table of Star Wars characters from the public [SWAPI](https://swapi.py4e.com/api/people).
 
-**Live demo: [starwars.webtimeless.bg](https://starwars.webtimeless.bg/)**
+**🔗 Live demo: [starwars.webtimeless.bg](https://starwars.webtimeless.bg/)**
 
-This README describes the project's real, current state. See
-[`AGENTS.md`](AGENTS.md) for full architecture, coding, and security conventions,
-[`docs/development-plan.md`](docs/development-plan.md) for the Phase 1 roadmap that shipped
-`1.0.0`, and [`docs/phase-2-development-plan.md`](docs/phase-2-development-plan.md) for the
-follow-up UI/UX and structure pass that shipped `1.9.0` (with small post-release fixes and polish
-in `1.9.1`, `1.10.0`, `1.11.0`, `1.12.0`, and `1.13.0`).
+This README describes the project's real, current state. See [`AGENTS.md`](AGENTS.md) for full
+architecture, coding, and security conventions, and [Documentation](#documentation) below for the
+project's roadmaps and release history.
 
-## Current status
+## Key features
 
-Version `1.0.0`'s full planned feature set (see `docs/development-plan.md`) shipped first; a
-follow-up UI/UX and structure pass (see `docs/phase-2-development-plan.md`) is now complete on top
-of it as of `1.9.0`. `/` is a simple home page (a heading, an
-[undraw.co](https://undraw.co/) illustration, and a short description of the app), and `/login` has
-a working, client-side validated login form (with a show/hide toggle on the password field) that,
-on success, records a lightweight demo session (just the submitted username, in `sessionStorage`,
-never the password) and navigates to `/table`, which shows real, paginated SWAPI character data
-(name, mass, height, hair color, skin color) with Previous/Next controls, a loading state, and a
-generic error message on failure. Mass and height each have a small unit toggle above the table
-(kilograms/pounds, centimeters/meters): switching units updates the column headers and every cell
-immediately, purely client-side, with no new network request, since the original API value and unit
-are the source of truth throughout. `/table` itself redirects a visitor with no session to `/login`
-(`src/app/ProtectedRoute.tsx`), with a toast notification explaining why; the reverse also holds:
-`/login` redirects a visitor who already has a session to `/` (`src/app/RedirectIfAuthenticated.tsx`),
-with a toast noting they're already logged in. Both are navigation guards through the intended
-login-first flow, not a security boundary, since there's no server and the character data isn't
-actually protected. The current page lives in the
-`?page=` URL search param, so reloading, sharing a link, and browser back/forward all keep working
-for a logged-in visitor. Each fetched page is cached in `localStorage` for five
-minutes, so revisiting it loads instantly without a network request; if a fresh fetch fails, the
-last cached data for that page (even past its five-minute TTL) is shown below the error message
-instead of a blank failure, with pagination still available. Losing the connection anywhere in the
-app shows an accessible, dismissible offline modal that reappears the next time the connection
-drops. A small toast notification system (`src/shared/toast/`) shows dismissible, auto-expiring
-messages (five seconds, or a manual close) in the bottom corner, used today for both redirects
-above. Every page is wrapped in a shared app shell (`src/app/Layout.tsx`): a sticky header with the
-Star Wars wordmark (linking to the home page, its `fill="currentColor"` adapting to the theme like
-every other header icon), a light/dark/system theme control, and session-aware
-navigation (an icon plus a `Login`
-link when logged out; when logged in, a `People` link to `/table`, a decorative divider, a greeting,
-and a `Log out` action, `People` and `Log out` shown icon-only below the `sm` breakpoint to keep the
-header from overflowing on narrow screens), and a footer with a copyright notice whose year updates
-on its own. This demo session is
-explicitly not real authentication: it's a client-side personalization and navigation convenience,
-with no server, no credential check, and no persistent account behind it. The theme control is a
-three-way segmented switch (light, dark, or follow the OS preference, the default until a choice is
-made), persisting the choice in `localStorage` and, in system mode, reacting live to an OS-level
-theme change with no reload needed. The footer links to three static pages, About, Privacy Policy,
-and Terms and Conditions (`/about`, `/privacy`, `/terms`), sharing one typography layout
-(`shared/components/StaticPage.tsx`) so their headings, paragraphs, lists, and links read as one
-visual system; the Privacy Policy and Terms describe this app's actual behavior (no backend, no
-real accounts, no cookies or tracking) rather than generic boilerplate. All pages, the header, the
-footer, and the offline modal hold up at mobile, tablet, and desktop widths without page-level
-horizontal overflow, with interactive controls sized for comfortable touch targets. Every
-interactive control (buttons, links, nav items) shares one deliberate focus-visible outline and
-hover transition (`shared/focusRing.ts`), and a three-tier shadow scale gives the sticky header, the
-modal, and toasts a consistent sense of elevation. An automated `axe-core` scan reports zero
-violations (in both themes), and the table and the offline modal's keyboard focus handling have
-both been verified by hand. Every page sets its own document title (as `<page> | Star Wars
-Portal`, or just `Star Wars Portal` on the home page) and meta tags (description, Open Graph, and
-Twitter Card) via `src/shared/hooks/usePageMeta.ts`, so the browser tab title updates correctly on
-navigation and a shared link carries a real preview, using one branded share image
-(`public/og-image.png`) built from the site's own header wordmark. A Vitest + React Testing Library
-suite covers the login validation boundaries, the `localStorage` cache helper (TTL expiry and
-corrupted or invalid data), the `?page=` parsing helper, the demo session and toast systems, both
-route guards (`ProtectedRoute` and `RedirectIfAuthenticated`, including a regression test that
-submits the real login form through the guard to confirm it reaches `/table` rather than being
-redirected home), the per-page title/meta tag hook, and a smoke test of the login form's
-enable/disable behavior. See `docs/development-plan.md` for the full step-by-step history.
+- **Home page (`/`)** — a short introduction to the app.
+- **Login (`/login`)** — a React Hook Form + Zod validated login form (username/password format
+  only), with a show/hide password toggle. There is no server and no credential check: a
+  successful submit simply starts a lightweight, client-side "demo session" (the submitted
+  username, held in `sessionStorage`, never the password) used only to personalize the UI and
+  guide navigation. It is explicitly **not** real authentication or a protected resource.
+- **Character table (`/table`)** — paginated, live [SWAPI](https://swapi.py4e.com/api/people) data
+  (name, mass, height, hair color, skin color) with loading and error states, and client-side
+  kg/lb and cm/m unit toggles that re-render instantly with no extra network request.
+- **Resilient data fetching** — each page is cached in `localStorage` for five minutes for instant
+  revisits; if a fresh fetch fails, the last cached page is still shown beneath a generic error
+  message instead of a blank failure.
+- **Navigation guards** — `/table` redirects to `/login` without a demo session and `/login`
+  redirects to `/` with one already, each with an explanatory toast. Both are UX conveniences
+  through the intended flow, not a security boundary.
+- **Theming** — a light/dark/system-following theme, persisted in `localStorage` and reacting live
+  to OS-level changes in system mode.
+- **Accessibility** — semantic HTML, a focus-trapping offline dialog, visible focus states
+  throughout, and zero automated `axe-core` violations in either theme.
+- **SEO & social sharing** — every route sets its own document title and Open Graph/Twitter Card
+  meta tags via `usePageMeta`, with a branded share image for link previews.
+- **Fully responsive** — mobile, tablet, and desktop layouts with no page-level horizontal
+  overflow and comfortable touch targets.
+- **Static content pages** — About, Privacy Policy, and Terms and Conditions, sharing one
+  typography layout and describing the app's actual (server-less, account-less) behavior.
+- **Automated tests** — a Vitest + React Testing Library suite covers form validation boundaries,
+  the `localStorage` cache helper, URL page-param parsing, the demo session, both route guards,
+  and the toast system.
 
-## Tech stack
+## Technologies
 
-- [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) (strict)
-- [Vite](https://vite.dev/)
-- [react-router-dom](https://reactrouter.com/)
-- [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) for forms and
-  validation (including runtime validation of API responses and cached data)
-- [Tailwind CSS](https://tailwindcss.com/) v4
-- Native `fetch` and `localStorage`: no HTTP client or data-fetching library
-- [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/react) for
-  tests
+| Category             | Choice                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------ |
+| Framework            | [React](https://react.dev/) 19                                                             |
+| Language             | [TypeScript](https://www.typescriptlang.org/) (`strict` mode)                              |
+| Build tool           | [Vite](https://vite.dev/)                                                                  |
+| Routing              | [React Router](https://reactrouter.com/)                                                   |
+| Forms & validation   | [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)                  |
+| Styling              | [Tailwind CSS](https://tailwindcss.com/) v4                                                |
+| Data fetching        | Native `fetch` + `AbortController` (no HTTP client library)                                |
+| Persistence          | Native `localStorage` / `sessionStorage`, Zod-validated on every read                      |
+| Testing              | [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/react) |
+| Linting & formatting | [ESLint](https://eslint.org/) (incl. `jsx-a11y`) + [Prettier](https://prettier.io/)        |
 
-See `AGENTS.md` for why the dependency list is intentionally short.
+See [`AGENTS.md`](AGENTS.md) for why the dependency list is intentionally kept this short.
 
 ## Requirements
 
@@ -104,7 +84,7 @@ npm install
 npm run dev
 ```
 
-## Scripts
+## Available scripts
 
 | Script                 | Purpose                                |
 | ---------------------- | -------------------------------------- |
@@ -122,96 +102,87 @@ npm run dev
 
 ```text
 src/
-  app/
-    routes.ts      # named route path constants
-    router.tsx     # <Routes>/<Route> definitions, nested under Layout
-    Layout.tsx     # app shell: Header, <Outlet /> for the current route, Footer
-    Header.tsx     # sticky app bar: Star Wars wordmark, Login/session-aware nav, ThemeToggle
-    Footer.tsx     # nav to About/Privacy/Terms, copyright notice with an auto-updating year
-    ProtectedRoute.tsx  # redirects /table to /login when there is no demo session (nav guard, not security)
-    ProtectedRoute.test.tsx  # redirect vs. pass-through cases, toast shown, StrictMode regression
-    RedirectIfAuthenticated.tsx  # redirects /login to / when a demo session already exists
-    RedirectIfAuthenticated.test.tsx  # redirect/pass-through cases, toast, and the login-race regression
-    OfflineModal.tsx  # offline-specific modal, shown app-wide via useOnlineStatus
-  pages/
-    HomePage.tsx        # heading, undraw.co illustration, short description
-    LoginPage.tsx      # renders the login form
-    TablePage.tsx       # renders the people table
-    AboutPage.tsx         # tech stack, SWAPI credit, link to the GitHub repo
-    PrivacyPolicyPage.tsx    # what sessionStorage/localStorage are used for, no cookies/tracking
-    TermsPage.tsx              # demo/no-warranty disclaimer, SWAPI/trademark credit
-    NotFoundPage.tsx
-  features/
-    auth/
-      loginSchema.ts     # Zod schema for username/password validation, username character allowlist
-      loginSchema.test.ts  # boundary tests for the schema
-      LoginForm.tsx        # React Hook Form + zodResolver; records a session, navigates to /table
-      LoginForm.test.tsx     # submit button enable/disable, password toggle, session recording
-      session.ts               # sessionStorage-backed demo session, Zod-validated on read
-      session.test.ts            # round-trip, corrupted/invalid/tampered data all treated as a miss
-      sessionContext.ts            # createContext() call and its type (not a component)
-      SessionProvider.tsx            # session state + login()/logout(), wraps AppRouter in App.tsx
-      useSession.ts                    # consumes SessionContext
-      Greeting.tsx                       # renders "Hi, <username>!" in the header when logged in
-      Greeting.test.tsx                    # a hostile username renders as inert text, never markup
-    people/
-      people.schema.ts     # Zod schemas for the SWAPI person and paginated list response
-      people.types.ts        # Person and PeopleResponse types, inferred from the schemas
-      pageParam.ts             # parses and validates the ?page= URL search param
-      pageParam.test.ts          # tests for valid, missing, and malformed page values
-      usePeople.ts                # fetches the given SWAPI page (cache-first), loading/success/error
-                                  # state, error state carries a stale cached fallback when one exists
-      PeopleTable.tsx               # presentational: renders a PeopleState prop, owns unit state
-      PeopleTable.test.tsx            # default cm/kg display, switching to m/lb updates the table
-      units.ts                          # formatHeight/formatMass: client-side unit conversion
-      units.test.ts                       # comma-formatted, non-numeric, and unit-switch cases
-      UnitToggle.tsx                        # generic 2-option segmented control (height, mass)
-      Pagination.tsx                          # Previous/Next controls, disabled at the first/last page
-  shared/
-    focusRing.ts    # INTERACTIVE_CLASS_NAME: the app-wide cursor-pointer, focus-visible, and
-                    # hover-transition style
-    api/
-      httpClient.ts    # fetch wrapper: AbortSignal support, typed ApiError, returns unknown
-    cache/
-      localStorageCache.ts    # getCached/setCached/getStale: Zod-validated reads, getCached applies
-                              # a TTL, getStale ignores it for fallback use
-      localStorageCache.test.ts  # TTL expiry, corrupted/invalid data handling
-    hooks/
-      useOnlineStatus.ts    # navigator.onLine, kept in sync via the online/offline events
-      useTheme.ts    # light/dark theme, localStorage-persisted, defaults to the OS preference
-      usePageMeta.ts    # sets document.title and description/Open Graph/Twitter meta tags per page
-      usePageMeta.test.tsx    # title formatting, tag upsert (no duplicates), og:url per route
-    components/
-      Modal.tsx    # generic accessible dialog built on the native <dialog> element
-      ThemeToggle.tsx    # light/dark toggle button, rendered once from app/Header.tsx
-      StaticPage.tsx    # shared heading/paragraph/list/link typography for content pages
-    toast/
-      toastContext.ts    # createContext() call and its type (not a component)
-      ToastProvider.tsx    # toast state + showToast(); renders the one visible stack
-      ToastProvider.test.tsx  # show, auto-dismiss, manual dismiss, role per variant
-      useToast.ts               # consumes ToastContext
-  test/
-    setup.ts    # Vitest setup: jest-dom matchers, Testing Library cleanup after each test
-  App.tsx        # root component, renders the router and the app-wide OfflineModal
-  main.tsx       # entry point, wraps App in BrowserRouter
-  index.css      # Tailwind entry
+├── app/                             # router, layout shell, route guards
+│   ├── routes.ts                    # named route path constants
+│   ├── router.tsx                   # route definitions, nested under Layout
+│   ├── Layout.tsx                   # app shell: Header, <Outlet />, Footer
+│   ├── Header.tsx                   # sticky app bar, session-aware nav, ThemeToggle
+│   ├── Footer.tsx                   # footer nav, auto-updating copyright year
+│   ├── ProtectedRoute.tsx           # redirects /table to /login without a session
+│   ├── RedirectIfAuthenticated.tsx  # redirects /login to / with a session
+│   └── OfflineModal.tsx             # offline dialog, shown app-wide
+├── pages/                           # thin route-level components
+│   ├── HomePage.tsx                 # heading, illustration, short description
+│   ├── LoginPage.tsx                # renders the login form
+│   ├── TablePage.tsx                # renders the people table
+│   ├── AboutPage.tsx                # tech stack, SWAPI credit, repo link
+│   ├── PrivacyPolicyPage.tsx        # storage usage, no cookies or tracking
+│   ├── TermsPage.tsx                # demo/no-warranty disclaimer
+│   └── NotFoundPage.tsx
+├── features/                        # feature-owned components, hooks, schemas
+│   ├── auth/
+│   │   ├── loginSchema.ts           # Zod schema, username character allowlist
+│   │   ├── LoginForm.tsx            # React Hook Form + zodResolver
+│   │   ├── session.ts               # sessionStorage-backed demo session
+│   │   ├── sessionContext.ts        # context definition and type
+│   │   ├── SessionProvider.tsx      # session state, login()/logout()
+│   │   ├── useSession.ts            # consumes SessionContext
+│   │   └── Greeting.tsx             # "Hi, <username>!" in the header
+│   └── people/
+│       ├── people.schema.ts         # Zod schemas for SWAPI responses
+│       ├── people.types.ts          # types inferred from the schemas
+│       ├── pageParam.ts             # parses and validates ?page=
+│       ├── usePeople.ts             # cache-first fetch, loading/success/error
+│       ├── PeopleTable.tsx          # presentational, owns unit state
+│       ├── units.ts                 # client-side mass/height conversion
+│       ├── UnitToggle.tsx           # generic 2-option segmented control
+│       └── Pagination.tsx           # Previous/Next controls
+├── shared/                          # cross-cutting code used by more than one feature
+│   ├── focusRing.ts                 # shared hover/focus-visible style
+│   ├── api/
+│   │   └── httpClient.ts            # fetch wrapper, AbortSignal, typed ApiError
+│   ├── cache/
+│   │   └── localStorageCache.ts     # Zod-validated reads, TTL, stale fallback
+│   ├── hooks/
+│   │   ├── useOnlineStatus.ts       # navigator.onLine, kept in sync
+│   │   ├── useTheme.ts              # light/dark theme, localStorage-persisted
+│   │   └── usePageMeta.ts           # per-page title and Open Graph/Twitter tags
+│   ├── components/
+│   │   ├── Modal.tsx                # accessible dialog on the native <dialog>
+│   │   ├── ThemeToggle.tsx          # light/dark toggle button
+│   │   └── StaticPage.tsx           # shared typography for content pages
+│   └── toast/
+│       ├── toastContext.ts          # context definition and type
+│       ├── ToastProvider.tsx        # toast state, showToast(), renders the stack
+│       └── useToast.ts              # consumes ToastContext
+├── test/
+│   └── setup.ts                     # Vitest setup, jest-dom, Testing Library cleanup
+├── App.tsx                          # root component, router and app-wide OfflineModal
+├── main.tsx                         # entry point, wraps App in BrowserRouter
+└── index.css                        # Tailwind entry
 ```
 
-This is the full structure built out over the plan in `docs/development-plan.md`, which documents
-the target folder structure and the reasoning behind it, step by step.
+Every feature and shared module above has a co-located `*.test.ts`/`*.test.tsx` file mirroring it
+(omitted here for brevity); see [Key features](#key-features) for what the test suite covers.
 
-## AI-assisted development
+## Documentation
 
-This repo is set up to work with AI coding assistants. `AGENTS.md` is the single shared source of
-truth for project conventions; `CLAUDE.md`, `.cursor/rules/agents.mdc`, and
-`.github/copilot-instructions.md` all point back to it (via symlink where the tool supports one)
-rather than duplicating its content.
+- [`AGENTS.md`](AGENTS.md) — the single source of truth for architecture, coding, security, and
+  accessibility conventions (shared by every AI coding assistant working in this repo: `CLAUDE.md`,
+  `.cursor/rules/agents.mdc`, and `.github/copilot-instructions.md` all point back to it).
+- [`docs/development-plan.md`](docs/development-plan.md) — the Phase 1 roadmap that shipped
+  `1.0.0`.
+- [`docs/phase-2-development-plan.md`](docs/phase-2-development-plan.md) — the follow-up UI/UX and
+  structure pass, complete as of `1.9.0`.
+- [`CHANGELOG.md`](CHANGELOG.md) — full release history, in [Keep a
+  Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
 ## Versioning
 
-This project follows [Semantic Versioning](https://semver.org/) and keeps a
-[`CHANGELOG.md`](CHANGELOG.md). It reached `1.0.0` once its Phase 1 feature set was complete and
-stable; patch releases are fixes, minor releases are backward-compatible feature additions, and a
-major bump is reserved for a breaking change. Since Phase 2 (see
-`docs/phase-2-development-plan.md`), each completed step ships its own version bump rather than
-batching several steps under one release; the current version is `1.12.0`.
+This project follows [Semantic Versioning](https://semver.org/): patch releases are fixes, minor
+releases are backward-compatible feature additions, and a major bump is reserved for a breaking
+change. See [`CHANGELOG.md`](CHANGELOG.md) for the version currently released and its full history.
+
+## License
+
+Released under the [MIT License](LICENSE).
