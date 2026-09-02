@@ -9,7 +9,7 @@ This README describes the project's real, current state. See
 [`docs/development-plan.md`](docs/development-plan.md) for the Phase 1 roadmap that shipped
 `1.0.0`, and [`docs/phase-2-development-plan.md`](docs/phase-2-development-plan.md) for the
 follow-up UI/UX and structure pass that shipped `1.9.0` (with small post-release fixes and polish
-in `1.9.1`, `1.10.0`, `1.11.0`, and `1.12.0`).
+in `1.9.1`, `1.10.0`, `1.11.0`, `1.12.0`, and `1.13.0`).
 
 ## Current status
 
@@ -61,13 +61,17 @@ interactive control (buttons, links, nav items) shares one deliberate focus-visi
 hover transition (`shared/focusRing.ts`), and a three-tier shadow scale gives the sticky header, the
 modal, and toasts a consistent sense of elevation. An automated `axe-core` scan reports zero
 violations (in both themes), and the table and the offline modal's keyboard focus handling have
-both been verified by hand. A Vitest + React Testing Library suite
-covers the login validation boundaries, the `localStorage` cache helper (TTL expiry and corrupted
-or invalid data), the `?page=` parsing helper, the demo session and toast systems, both route
-guards (`ProtectedRoute` and `RedirectIfAuthenticated`, including a regression test that submits
-the real login form through the guard to confirm it reaches `/table` rather than being redirected
-home), and a smoke test of the login form's enable/disable behavior. See
-`docs/development-plan.md` for the full step-by-step history.
+both been verified by hand. Every page sets its own document title (as `<page> | Star Wars
+Portal`, or just `Star Wars Portal` on the home page) and meta tags (description, Open Graph, and
+Twitter Card) via `src/shared/hooks/usePageMeta.ts`, so the browser tab title updates correctly on
+navigation and a shared link carries a real preview, using one branded share image
+(`public/og-image.png`) built from the site's own header wordmark. A Vitest + React Testing Library
+suite covers the login validation boundaries, the `localStorage` cache helper (TTL expiry and
+corrupted or invalid data), the `?page=` parsing helper, the demo session and toast systems, both
+route guards (`ProtectedRoute` and `RedirectIfAuthenticated`, including a regression test that
+submits the real login form through the guard to confirm it reaches `/table` rather than being
+redirected home), the per-page title/meta tag hook, and a smoke test of the login form's
+enable/disable behavior. See `docs/development-plan.md` for the full step-by-step history.
 
 ## Tech stack
 
@@ -169,6 +173,8 @@ src/
     hooks/
       useOnlineStatus.ts    # navigator.onLine, kept in sync via the online/offline events
       useTheme.ts    # light/dark theme, localStorage-persisted, defaults to the OS preference
+      usePageMeta.ts    # sets document.title and description/Open Graph/Twitter meta tags per page
+      usePageMeta.test.tsx    # title formatting, tag upsert (no duplicates), og:url per route
     components/
       Modal.tsx    # generic accessible dialog built on the native <dialog> element
       ThemeToggle.tsx    # light/dark toggle button, rendered once from app/Header.tsx

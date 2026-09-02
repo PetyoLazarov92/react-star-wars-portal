@@ -1,4 +1,11 @@
+import { usePageMeta } from '../shared/hooks/usePageMeta'
+
 function HomePage() {
+  usePageMeta({
+    description:
+      'A small demo app for browsing Star Wars characters. Log in with any username and password to explore a paginated table of names, heights, mass, and more, pulled from the public SWAPI.',
+  })
+
   return (
     <main className="flex flex-1 flex-col items-center justify-center gap-6 p-6 text-center">
       <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 sm:text-3xl">

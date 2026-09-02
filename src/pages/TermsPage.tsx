@@ -1,6 +1,13 @@
 import StaticPage from '../shared/components/StaticPage'
+import { usePageMeta } from '../shared/hooks/usePageMeta'
 
 function TermsPage() {
+  usePageMeta({
+    title: 'Terms and Conditions',
+    description:
+      'The terms for using Star Wars Portal, a demo and portfolio project with no real user accounts or warranty.',
+  })
+
   return (
     <StaticPage title="Terms and Conditions">
       <p>Last updated: September 2026</p>

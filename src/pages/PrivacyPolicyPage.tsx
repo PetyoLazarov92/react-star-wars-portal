@@ -1,6 +1,13 @@
 import StaticPage from '../shared/components/StaticPage'
+import { usePageMeta } from '../shared/hooks/usePageMeta'
 
 function PrivacyPolicyPage() {
+  usePageMeta({
+    title: 'Privacy Policy',
+    description:
+      'How Star Wars Portal handles your data: no server, no real accounts, and nothing stored beyond your own browser.',
+  })
+
   return (
     <StaticPage title="Privacy Policy">
       <p>Last updated: September 2026</p>

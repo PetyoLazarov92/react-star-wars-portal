@@ -1,6 +1,13 @@
 import StaticPage from '../shared/components/StaticPage'
+import { usePageMeta } from '../shared/hooks/usePageMeta'
 
 function AboutPage() {
+  usePageMeta({
+    title: 'About',
+    description:
+      'What Star Wars Portal is, where its character data comes from, and what it is built with.',
+  })
+
   return (
     <StaticPage title="About">
       <p>

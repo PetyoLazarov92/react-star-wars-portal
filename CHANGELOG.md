@@ -12,6 +12,29 @@ rather than batching several steps under one release.
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-09-02
+
+### Added
+
+- Per-page document titles and meta tags (`src/shared/hooks/usePageMeta.ts`): every route now sets
+  its own `document.title` (as `<page title> | Star Wars Portal`, or just `Star Wars Portal` on the
+  home page), `<meta name="description">`, Open Graph tags (`og:title`, `og:description`,
+  `og:image`, `og:url`, `og:type`, `og:site_name`), and Twitter Card tags, covering the home page,
+  login, the people table, About, Privacy Policy, Terms and Conditions, and the 404 page.
+- A shared Open Graph share image (`public/og-image.png`, 1200x630): the site's own header
+  wordmark and Rebel Alliance badge on the app's dark brand background, so links shared to social
+  platforms and chat apps show a branded preview instead of a blank one.
+
+### Note
+
+There's no server in this app, so `usePageMeta` writes these tags to the DOM on the client:
+they're correct for the visible browser tab and for anything that runs JavaScript before reading
+the page, but a link-unfurling bot that only fetches the raw `index.html` (many social share
+previews) sees the same static defaults for every route, since a client-only SPA has no per-route
+server-rendered HTML to serve instead. `index.html` now carries those static defaults (description,
+`og:*`, `twitter:*`, all pointing at the home page and the shared share image) so that fallback is
+still a sensible one rather than empty.
+
 ## [1.12.0] - 2026-09-02
 
 ### Added

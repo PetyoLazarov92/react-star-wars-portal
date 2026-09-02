@@ -632,9 +632,62 @@ app's accent yellow.
 
 ---
 
-All nine steps originally planned for this phase are complete as of `1.9.0`. Four further,
+### Step 13: Per-page meta tags, dynamic titles, and an Open Graph share image
+
+**Status:** Done (shipped as `1.13.0`)
+
+**What:** A new `usePageMeta` hook (`src/shared/hooks/usePageMeta.ts`), called by every page
+component (`HomePage`, `LoginPage`, `TablePage`, `AboutPage`, `PrivacyPolicyPage`, `TermsPage`,
+`NotFoundPage`) with that page's own title and description. It sets `document.title` (as
+`<page title> | Star Wars Portal`, or just `Star Wars Portal` on the home page, which needs no
+disambiguating prefix), `<meta name="description">`, the Open Graph tags (`og:type`,
+`og:site_name`, `og:title`, `og:description`, `og:url`, `og:image` plus its width/height/alt), and
+the matching Twitter Card tags, upserting each `<meta>` element in `document.head` rather than
+creating duplicates on every navigation. It reads `useLocation()` so `og:url` (and the title, on
+route changes) stay correct as the user navigates, including into `/table`'s `?page=N` query
+string. All pages share one Open Graph image, `public/og-image.png` (1200x630): the site's own
+header wordmark and Rebel Alliance badge (the same two brand marks already used for the header logo
+and the favicon) on the app's dark brand gradient, generated once via headless Chrome screenshotting
+an HTML page built from those exact inline SVGs, rather than a hand-drawn or stock image.
+
+**Why now:** The user asked for proper per-page meta tags, a title that updates when navigating
+between routes, and an Open Graph image for link sharing, reusing the site's own logo if it made
+sense, covering every route including the 404 page.
+
+**Decision:** This app has no server (per `AGENTS.md`, the login is client-side-only and there is
+no backend), so there is no per-route server-rendered HTML to serve real, crawlable Open Graph tags
+from. `usePageMeta` writes its tags to the DOM on the client: correct for the visible browser tab
+and for any bot that executes JavaScript before reading the page, but a link-unfurling bot that only
+fetches the raw `index.html` (true of many social share previews) sees the same static defaults for
+every route regardless of which URL was requested. `index.html` was given a full, sensible set of
+static defaults (description, `og:*`, `twitter:*`, all pointing at the home page and the shared
+share image) so that fallback case still shows something reasonable rather than an empty preview,
+rather than reaching for a prerendering/SSR build step to fix it: that would be a real architecture
+change and a new dependency, which the project's minimal-dependencies and boring-solution principles
+say needs concrete justification, not a default reach for a demo app with no server today. No new
+dependency was added: title/meta management uses a small hook around plain
+`document.title`/`document.head` DOM calls, the same "native browser APIs first" approach used
+throughout the project (no `react-helmet`-style library).
+
+**Changes:** `src/shared/hooks/usePageMeta.ts` (new), `src/shared/hooks/usePageMeta.test.tsx`
+(new), `public/og-image.png` (new), `index.html` (static description/Open Graph/Twitter Card
+defaults added), `src/pages/HomePage.tsx` / `LoginPage.tsx` / `TablePage.tsx` / `AboutPage.tsx` /
+`PrivacyPolicyPage.tsx` / `TermsPage.tsx` / `NotFoundPage.tsx` (each now calls `usePageMeta` with
+its own title and description).
+
+**Validation:** `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test` (82 tests,
+5 new), and `npm run build` all pass. Verified against a production preview build in headless
+Chrome: `<title>` and every meta tag checked (`description`, `og:title`, `og:url`) render correctly
+per route for `/`, `/login`, `/table` (redirects to `/login`'s meta when logged out, as expected
+from the existing protected-route behavior), `/about`, `/privacy`, `/terms`, and an unmatched route
+(the 404 page); `og:url` reflects the current path.
+
+---
+
+All nine steps originally planned for this phase are complete as of `1.9.0`. Five further,
 user-requested changes landed after that: a cursor-style fix (`1.9.1`), a header nav polish pass
-(`1.10.0`), the login/home route split (`1.11.0`), and swapping in Star Wars artwork for the header
-title and favicon (`1.12.0`); see Steps 9 through 12 above. Any further UI/UX work beyond what's
-described above (e.g. real user accounts, additional unit types, more toast use sites) would be a
-new phase with its own plan document, not an addition to this one.
+(`1.10.0`), the login/home route split (`1.11.0`), swapping in Star Wars artwork for the header
+title and favicon (`1.12.0`), and per-page meta tags with an Open Graph share image (`1.13.0`); see
+Steps 9 through 13 above. Any further UI/UX work beyond what's described above (e.g. real user
+accounts, additional unit types, more toast use sites) would be a new phase with its own plan
+document, not an addition to this one.

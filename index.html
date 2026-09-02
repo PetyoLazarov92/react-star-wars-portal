@@ -5,6 +5,34 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Star Wars Portal</title>
+    <!--
+      These are the static defaults a link-unfurling bot sees if it only fetches this raw HTML
+      file without running JavaScript, the same for every route since this is a client-only SPA
+      with no per-route server rendering. Once the app mounts, src/shared/hooks/usePageMeta.ts
+      overwrites all of these with page-specific values for the actual route the user is on.
+    -->
+    <meta
+      name="description"
+      content="A demo app for browsing Star Wars characters: log in, then page through names, mass, height, hair color, and skin color pulled from the public SWAPI."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Star Wars Portal" />
+    <meta property="og:title" content="Star Wars Portal" />
+    <meta
+      property="og:description"
+      content="A demo app for browsing Star Wars characters: log in, then page through names, mass, height, hair color, and skin color pulled from the public SWAPI."
+    />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Star Wars Portal" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Star Wars Portal" />
+    <meta
+      name="twitter:description"
+      content="A demo app for browsing Star Wars characters: log in, then page through names, mass, height, hair color, and skin color pulled from the public SWAPI."
+    />
+    <meta name="twitter:image" content="/og-image.png" />
   </head>
   <body>
     <div id="root"></div>
